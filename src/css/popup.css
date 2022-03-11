@@ -1,0 +1,15 @@
+table {
+    border-style: solid;
+    border-color: green;
+    border-width: thick;
+}
+th, td {
+    text-align: left;
+    padding: 10px;
+    border: 1px solid green;
+    white-space: nowrap;
+}
+#t01 {
+    text-align: center;
+    text-emphasis: bold;
+}
