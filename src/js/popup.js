@@ -1,13 +1,26 @@
 "use strict";
 
-chrome.storage.local.get("redirectUrl", ({ redirectUrl }) => {
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    // ask script to search for SSO logins
+    chrome.tabs.sendMessage(tabs[0].id, {msg: "searchSSO"}, function(response) {
+        console.log(response.result);
+    });
+});
+
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        showResult(request.redirectUrl);
+    }
+);
+
+function showResult(url) {
     var logins = document.getElementById("login-options");
     var sso = logins.insertRow(1);
     var c0 = sso.insertCell(0);
     var c1 = sso.insertCell(1);
-    c0.innerHTML = getProviderName(redirectUrl);
-    c1.innerHTML = getScopeValue(redirectUrl);
-});
+    c0.innerHTML = getProviderName(url);
+    c1.innerHTML = getScopeValue(url);
+}
 
 function getProviderName(url) {
     var str = String(url);

@@ -10,7 +10,6 @@
       "default_popup": "src/popup.html"
     },
     "permissions": [
-      "storage",
       "webRequest"
     ],
     "host_permissions": [
