@@ -12,8 +12,8 @@ const SSO_LOGIN_PATTERNS = [
 ];
 
 const IDP_NAMES = [
-    "GOOGLE", "Google", "google", "gmail",
-    "FACEBOOK", "Facebook", "facebook",
+    "GOOGLE", "Google", "google", "gmail", "Gmail",
+    "FACEBOOK", "Facebook", "facebook", "FaceBook",
     "APPLE", "Apple", "apple"
 ];
 

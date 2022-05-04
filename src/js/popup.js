@@ -1,5 +1,157 @@
 "use strict";
 
+const IDP_SCOPE_DESC = {
+    "Facebook": {
+        "email": {
+            title: "Email address",
+            desc: "Retrieve your email address"
+        },
+        "public_profile": {
+            title: "Profile",
+            desc: "Retrieve your name and profile picture"
+        },
+        "user_age_range": {
+            title: "Age (range)",
+            desc: "Retrieve your age as a range (e.g., more than 18, less than 21)"
+        },
+        "user_birthday": {
+            title: "Date of birth",
+            desc: "Retrieve your date of birth. Depending on your Facebook privacy settings, this can be the exact date (MM/DD/YYYY) or only the year (YYYY) or without the year (MM/DD)"
+        },
+        "user_friends": {
+            title: "Friends list",
+            desc: "Retrieve a list of your Facebook friends who also use this website"
+        },
+        "user_gender": {
+            title: "Gender",
+            desc: "Retrieve your gender and/or preferred pronouns"
+        },
+        "user_hometown": {
+            title: "Hometown (city/town)",
+            desc: "Retrieve your hometown as seen on your profile"
+        },
+        "user_likes": {
+            title: "Page Likes",
+            desc: "Retrieve a list of all Facebook Pages you have liked"
+        },
+        "user_link": {
+            title: "Profile link",
+            desc: "Retrieve a link to your Facebook profile"
+        },
+        "user_location": {
+            title: "Location (city/town)",
+            desc: "Retrieve your location as seen on your profile"
+        },
+        "user_photos": {
+            title: "Photos",
+            desc: "Retrieve photos you are tagged in or you have uploaded"
+        },
+        "user_posts": {
+            title: "Profile Posts",
+            desc: "Retrieve posts you have published on your timeline"
+        },
+        "user_videos": {
+            title: "Videos",
+            desc: "Retrieve videos you are tagged in or you have uploaded"
+        }
+    },
+    "Google": {
+        /* Sign-In */
+        "email": {
+            title: "Email address",
+            desc: "Retrieve your email address"
+        },
+        "profile": {
+            title: "Profile",
+            desc: "Retrieve your name, email address, language preference, and profile picture"
+        },
+        "openid": {
+            title: "Identification",
+            desc: "Retrieve your name, email address, language preference, and profile picture"
+        },
+        /* People API */
+        "contacts": {
+            title: "Contacts",
+            desc: "Retrieve, change, or permanently delete your contacts"
+        },
+        "contants.readonly": {
+            title: "Contacts",
+            desc: "Retrieve your contacts"
+        },
+        "user.addresses.read": {
+            title: "Street address",
+            desc: "Retrieve your street addresses"
+        },
+        "user.birthday.read": {
+            title: "Date of birth",
+            desc: "Retrieve your exact date of birth"
+        },
+        "user.emails.read": {
+            title: "Email address",
+            desc: "Retrieve your Google email addresses"
+        },
+        "user.gender.read": {
+            title: "Gender",
+            desc: "Retrieve your gender info"
+        },
+        "user.phonenumbers.read": {
+            title: "Phone number",
+            desc: "Retrieve your personal phone numbers"
+        },
+        "userinfo.email": {
+            title: "Email address",
+            desc: "Retrieve your name, email address, language preference, and profile picture"
+        },
+        "userinfo.profile": {
+            title: "Google Profile",
+            desc: "Retrieve your name, email address, language preference, and profile picture"
+        },
+        /* Google apps */
+        "calendar": {
+            title: "Calendar",
+            desc: "Retrieve, change, or permanently delete any calendar you can access using Google Calendar"
+        },
+        "calendar.readonly": {
+            title: "Calendar",
+            desc: "Retrieve any calendar you can access using your Google Calendar"
+        },
+        "gmail.readonly": {
+            title: "Gmail (email content)",
+            desc: "Retrieve your email messages and settings"
+        },
+        "drive.readonly": {
+            title: "Google Drive",
+            // "See and download all your Google Drive files"
+            desc: "Retrieve all your Google Drive files"
+        },
+        "drive": {
+            title: "Google Drive",
+            // "See, edit, create, and delete all of your Google Drive files"
+            desc: "Retrieve, change, create, or delete all of your Google Drive files"
+        },
+        "photoslibrary.readonly": {
+            title: "Photos",
+            // "View your Google Photos library"
+            desc: "Retrieve your Google Photos library"
+        },
+        "youtube.readonly": {
+            title: "YouTube",
+            // "View your YouTube account"
+            desc: "Retrieve your YouTube account"
+        }
+    },
+    "Apple": {
+        "email": {
+            title: "Email address",
+            desc: "Retrieve your email address"
+        },
+        "name": {
+            title: "Profile",
+            desc: "Retrieve your full name"
+        }
+    }
+}
+
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     // ask script to search for SSO logins
     chrome.tabs.sendMessage(tabs[0].id, {msg: "searchSSO"}, function(response) {
@@ -13,13 +165,35 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
+function newElement(classname, text=undefined) {
+    const el = document.createElement("div");
+    el.classList.add(classname);
+    // (optional) add text to element
+    if (typeof text !== 'undefined') {
+        el.append(text);
+    }
+    return el;
+}
+
 function showResult(url) {
-    var logins = document.getElementById("login-options");
-    var sso = logins.insertRow(1);
-    var c0 = sso.insertCell(0);
-    var c1 = sso.insertCell(1);
-    c0.innerHTML = getProviderName(url);
-    c1.innerHTML = getScopeValue(url);
+    const idp = getProviderName(url);
+    // create a new card to show info on idp
+    const header = newElement("card-header", idp);
+    const content = newElement("card-content");
+    // add scope descriptions to the card
+    getScopes(url).forEach(scope => {
+        const title = newElement("scope-title", IDP_SCOPE_DESC[idp][scope].title)
+        const desc = newElement("scope-desc", IDP_SCOPE_DESC[idp][scope].desc);
+        content.appendChild(title);
+        content.appendChild(desc);
+    });
+    const card = newElement("card");
+    card.appendChild(header);
+    card.appendChild(content);
+    // show card on popup window
+    const column = newElement("column");
+    column.appendChild(card);
+    document.getElementById("login-options").appendChild(column);
 }
 
 function getProviderName(url) {
@@ -38,7 +212,7 @@ function getProviderName(url) {
     }
 }
 
-function getScopeValue(url) {
+function getScopes(url) {
     var str = String(url);
     if (!str.includes("scope=")) {
         return; 
@@ -54,6 +228,7 @@ function getScopeValue(url) {
         idx2 = idx1 + idx2;
     }
     var scope = str.substring(idx1, idx2)
-    return scope;
+    // split into individual scope values
+    return scope.split(/%20|%2C|\+/i);
 }
 
