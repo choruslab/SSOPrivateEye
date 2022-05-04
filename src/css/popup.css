@@ -45,6 +45,12 @@ body {
     margin-bottom: 3px;
 }
 
+.card-footer {
+    text-align: right;
+    font-size: 0.6rem;
+    padding: 5px 10px;
+}
+
 .scope-title {
     display: block;
     font-size: 1.17em;

@@ -190,6 +190,19 @@ function showResult(url) {
     const card = newElement("card");
     card.appendChild(header);
     card.appendChild(content);
+ 
+    // add footer if needed
+    if (idp === "Apple") {
+        const footer = newElement("card-footer");
+        const a = document.createElement("a");
+        a.appendChild(document.createTextNode('Learn about "Hide My Email"'));
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.href = "https://support.apple.com/en-ca/HT210425";
+        footer.appendChild(a);
+        card.appendChild(footer);
+    }
+ 
     // show card on popup window
     const column = newElement("column");
     column.appendChild(card);
