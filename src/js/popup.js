@@ -234,22 +234,29 @@ function getProviderName(url) {
 }
 
 function getScopes(url) {
-    var str = String(url);
+    const str = String(url);
     if (!str.includes("scope=")) {
-        return; 
+        return []; 
     }
     // substr following scope=
-    var idx1 = str.indexOf("scope=") + 6;
-    var ss1 = str.substring(idx1);
+    let idx1 = str.indexOf("scope=") + 6;
+    let ss1 = str.substring(idx1);
     // first & after scope=
-    var idx2 = ss1.indexOf("&");
+    let idx2 = ss1.indexOf("&");
     if (idx2 == -1) { // none
         idx2 = str.length;
     } else {
         idx2 = idx1 + idx2;
     }
-    var scope = str.substring(idx1, idx2)
+    let scope = str.substring(idx1, idx2)
     // split into individual scope values
-    return scope.split(/%20|%2C|\+/i);
+    scope = scope.split(/%20|%2C|,|\+/i);
+    scope.forEach(function(val, index, arr) {
+        if (val.includes("%2F")) {
+            let i1 = val.lastIndexOf("%2F");
+            arr[index] = val.substring(i1 + 3);
+        }
+    });
+    return scope;
 }
 
