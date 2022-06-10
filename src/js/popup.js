@@ -10,6 +10,10 @@ const IDP_SCOPE_DESC = {
             title: "Profile",
             desc: "Retrieve your name and profile picture"
         },
+        "openid": {
+            title: "Identification",
+            desc: "Retrieve a unique user ID for the app"
+        },
         "user_age_range": {
             title: "Age (range)",
             desc: "Retrieve your age as a range (e.g., more than 18, less than 21)"
@@ -148,6 +152,10 @@ const IDP_SCOPE_DESC = {
         "name": {
             title: "Profile",
             desc: "Retrieve your full name"
+        },
+        "openid": {
+            title: "Identification",
+            desc: "Retrieve a unique user ID for the app"
         }
     }
 }
