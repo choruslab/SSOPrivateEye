@@ -4,18 +4,27 @@ const SSO_LOGIN_PATTERNS = [
     "#{idp}_form", // vimeo
     "[aria-label='Sign in with {idp}']", // zoom
     "#social-login-{idp}", // bit.ly
-    "[data-testid='{idp}-login-button']", // tumblr
-    "[data-cy='{idp}-sign-in-button']", // theguardian
+    "[data-testid*='{idp}-login']", // tumblr
+    "[data-cy*='{idp}-sign-in']", // theguardian
     "[href*='signin/{idp}']", // imgur
     "#js-{idp}-oauth-login", // nytimes
-    "[href*='start-auth/{idp}']",
+    "[href*='auth/{idp}']",
     "[href*='connect/{idp}']", // medium
     "[href*='signin?openid']", // imdb
     ".fm-sns-item.{idp}", // aliexpress
     ".{idp}-button", //xhamster
     "#signin_{idp}_btn", // ebay
-    "[data-test='signin-auth-provider-button-{idp}']", // fandom
-    "[action*='auth/{idp}']" // okezone
+    "[data-test*='provider-button-{idp}']", // fandom
+    "[action*='auth/{idp}']", // okezone
+    "[href*='connector/{idp}']", // researchgate
+    "[href*='login/{idp}']", // tinyurl
+    "[data-provider*='{idp}']", // usatoday
+    "[href*='{idp}/auth']", // envato
+    "[href*='client={idp}']", // ilovepdf
+    ".iVatvW", ".dwhcjJ", // pixiv.net
+    "[href*='third_party={idp}']", // surveymonkey
+    "[class*='loginform-btn--{idp}']", // livejournal
+    "[href*='sso/{idp}']" // shutterstock
 ];
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
@@ -63,8 +72,11 @@ function idpLinkSearch() {
     let regex = new RegExp(IDP_ENDPOINT_REGEX);
     for (let el of document.querySelectorAll("*")) {
         // search links for idp match
-        if (regex.test(el.href)) {
-            sendResult(el.href);
+        for (let i = 0; i < el.attributes.length; i++) {
+            let val = el.attributes[i].value;
+            if (regex.test(val)) {
+                sendResult(val);
+            }
         }
     }
 }
@@ -74,6 +86,15 @@ function sendResult(redirectUrl) {
     // send results to interface
     chrome.runtime.sendMessage({"redirectUrl": redirectUrl}, function(response) {
         console.log("result sent from content script");
+    });
+}
+
+function sendResultToBackground(url) {
+    chrome.runtime.sendMessage({
+        type: 'RETRY_REQUEST',
+        url: url
+    }, function(response) {
+        console.log("url sent to background script");
     });
 }
 
@@ -129,6 +150,13 @@ function submitServerForm(el) {
     if (param != null && value != null) {
         formData.append(param, value);
     }
+    // add any other hidden parameters
+    for (let i = 0; i < el.children.length; i++) {
+        const child = el.children[i];
+        if (child.tagName == "INPUT" && child.getAttribute("type") == "hidden") {
+            formData.append(child.getAttribute("name"), child.getAttribute("value"));
+        }
+    }
     
     // submit form
     let req = new XMLHttpRequest();
@@ -141,8 +169,7 @@ function sendServerRequest(url) {
         return; // TODO: send message for "No SSO found"
     }
 
-    //fetch(url, {redirect: 'manual'});
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.send(null);
+    fetch(url)
+        .then(response => console.log(response) )
+        .catch(err => sendResultToBackground(url));
 }

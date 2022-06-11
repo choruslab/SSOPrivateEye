@@ -160,16 +160,31 @@ const IDP_SCOPE_DESC = {
     }
 }
 
+const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
++ "|https://(.*)\\.facebook\\.com/oauth(.*)"
++ "|https://graph\\.facebook\\.com/(.*)" 
++ "|https://(.*)\\.facebook\\.com/(.*)/oauth(.*)"
+// Google
++ "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
++ "|https://oauth2\\.googleapis\\.com/(.*)"
++ "|https://openidconnect\\.googleapis\\.com/(.*)"
++ "|https://googleapis\\.com/oauth(.*)"
+// Apple
++ "|https://(.*)\\.apple\\.com/auth(.*)";
+
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     // ask script to search for SSO logins
     chrome.tabs.sendMessage(tabs[0].id, {msg: "searchSSO"}, function(response) {
-        console.log(response.result);
+        //console.log(response.result);
     });
 });
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        showResult(request.redirectUrl);
+        const regex = new RegExp(IDP_ENDPOINT_REGEX);
+        if (regex.test(request.redirectUrl)) {
+            showResult(request.redirectUrl);
+        } 
     }
 );
 
@@ -231,6 +246,7 @@ function getProviderName(url) {
     if (str.includes("LinkedIn")) {
         return "LinkedIn";
     }
+    return "";
 }
 
 function getScopes(url) {

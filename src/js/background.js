@@ -22,6 +22,15 @@ chrome.webRequest.onBeforeRedirect.addListener(
     }
 );
 
+chrome.runtime.onMessage.addListener(
+    function(msg, sender, sendResponse) {
+        console.log(msg);
+        if (msg.type == "RETRY_REQUEST") {
+            checkUrlAndRetryIfNeeded(msg.url);
+        }
+    }
+);
+
 function sendResult(redirectUrl) {
     console.log(redirectUrl);
     // send results to interface
