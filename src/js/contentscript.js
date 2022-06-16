@@ -169,7 +169,14 @@ function sendServerRequest(url) {
         return; // TODO: send message for "No SSO found"
     }
 
-    fetch(url)
-        .then(response => console.log(response) )
-        .catch(err => sendResultToBackground(url));
+    chrome.runtime.sendMessage({
+        type: 'RETRY_REQUEST',
+        url: url
+    }, function(response) {
+        console.log("url sent to background script");
+    });
+
+    //fetch(url)
+    //    .then(response => console.log(response) )
+    //    .catch(err => sendResultToBackground(url));
 }

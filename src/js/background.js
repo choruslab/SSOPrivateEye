@@ -46,6 +46,7 @@ function checkUrlAndRetryIfNeeded(url) {
         return;
     } else {
         // retry request to url
-        fetch(url, {redirect: 'follow'});
+        fetch(url, {redirect: 'manual'})
+            .then(response => console.log(response));
     }
 }
