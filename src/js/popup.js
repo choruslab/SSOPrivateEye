@@ -18,7 +18,7 @@ const IDP_SCOPE_DESC = {
             },
             "user_birthday": {
                 title: "Birthday",
-                desc: "Retrieve your date of birth. Depending on your Facebook privacy settings, this can be the exact date (MM/DD/YYYY) or only the year (YYYY) or without the year (MM/DD)"
+                desc: "Retrieve your date of birth. Based on your profile settings, this can be MM-DD-YYYY or MM-DD or YYYY"
             },
             "user_age_range": {
                 title: "Age Range",
@@ -221,7 +221,7 @@ function getScopeContent(url) {
         basic_info.attributes.forEach(attr => {
             content.appendChild(newElement("scope-desc", attr));
         });
-        content.appendChild(newElement("hr-after-label"));
+        content.appendChild(newElement("hr-after-basic-scopes"));
     }
 
     // non-basic info

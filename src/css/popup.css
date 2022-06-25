@@ -58,8 +58,8 @@ body {
     padding: 4px 0 0 0;
 }
 
-.hr-after-label {
-    border-bottom: 1px solid #dddddd;
+.hr-after-basic-scopes {
+    border-bottom: 1px solid #737373;
     margin: 0.5em 0 0 0;
 }
 
