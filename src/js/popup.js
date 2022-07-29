@@ -5,60 +5,64 @@ const IDP_SCOPE_DESC = {
         "basic_scopes": ["public_profile"],
         "basic_info": {
             title: "Basic info",
+            title_label: "(required)",
             attributes: ["Name", "Profile Picture"]
         },
         "non_basic_scopes": {
             "email": {
-                title: "Email Address",
-                desc: "Retrieve your email address"
+                title: "Email Address"
             },
             "openid": {
                 title: "User ID",
-                desc: "Retrieve a unique user ID for the app"
+                desc: "Unique user ID for the app"
             },
             "user_birthday": {
                 title: "Birthday",
-                desc: "Retrieve your date of birth. Based on your profile settings, this can be MM-DD-YYYY or MM-DD or YYYY"
+                desc: "Based on your profile settings, this can be MM-DD-YYYY or MM-DD or YYYY"
             },
             "user_age_range": {
                 title: "Age Range",
-                desc: "Retrieve your age as a range (e.g., more than 18, less than 21)"
+                desc: "Age as a range (e.g., more than 18, less than 21)"
             },
             "user_gender": {
                 title: "Gender",
-                desc: "Retrieve your gender and/or preferred pronouns"
+                desc: "Gender and/or preferred pronouns"
             },
             "user_friends": {
                 title: "Facebook Friends",
-                desc: "Retrieve a list of your Facebook friends who also use this website"
+                desc: "List of your Facebook friends who also use this website"
             },
             "user_hometown": {
                 title: "Hometown (city/town)",
-                desc: "Retrieve your hometown as seen on your profile"
+                desc: "Hometown as seen on your profile"
             },
             "user_likes": {
                 title: "Facebook Likes (pages)",
-                desc: "Retrieve a list of all Facebook Pages you have liked"
+                desc: "List of all Facebook Pages you have liked"
             },
             "user_link": {
                 title: "Facebook Profile (link)",
-                desc: "Retrieve a link to your Facebook profile"
+                desc: "Link to your Facebook profile"
             },
             "user_location": {
                 title: "Location (city/town)",
-                desc: "Retrieve your location as seen on your profile"
+                desc: "Location as seen on your profile"
             },
             "user_photos": {
                 title: "Facebook Photos (tagged or uploaded)",
-                desc: "Retrieve photos you are tagged in or you have uploaded"
+                desc: "Photos you are tagged in or you have uploaded"
             },
             "user_posts": {
                 title: "Facebook Profile (posts)",
-                desc: "Retrieve posts you have published on your timeline"
+                desc: "Posts you have published on your timeline"
             },
             "user_videos": {
                 title: "Facebook Videos (tagged or uploaded)",
-                desc: "Retrieve videos you are tagged in or you have uploaded"
+                desc: "Videos you are tagged in or you have uploaded"
+            },
+            "user_messenger_contact": {
+                title: "Contact via Messenger",
+                desc: "Site can contact you on a Messenger chat thread"
             }
         }
     },
@@ -66,49 +70,45 @@ const IDP_SCOPE_DESC = {
         "basic_scopes": ["profile"],
         "basic_info": {
             title: "Basic info",
+            title_label: "(required)",
             attributes: ["Name", "Language Preference", "Profile Picture"]
         },
         "non_basic_scopes": {
             "email": {
-                title: "Email address",
-                desc: "Retrieve your email address"
+                title: "Email address"
             },
             "openid": {
                 title: "User ID",
-                desc: "Retrieve a unique user ID for the app"
+                desc: "Unique user ID for the app"
             },
             /* People API */
             "user.birthday.read": {
                 title: "Birthday",
-                desc: "Retrieve your exact date of birth"
+                desc: "Exact date of birth"
             },
             "user.gender.read": {
                 title: "Gender",
-                desc: "Retrieve your gender info"
+                desc: "Gender info"
             },
             "contacts": {
-                title: "Contacts (edit/delete)",
-                desc: "Retrieve, change, or permanently delete your contacts"
+                title: "Contacts (edit/delete)"
             },
             "contants.readonly": {
-                title: "Contacts (read only)",
-                desc: "Retrieve your contacts"
+                title: "Contacts (read only)"
             },
             "user.addresses.read": {
-                title: "Street address",
-                desc: "Retrieve your street addresses"
+                title: "Street address"
             },
             "user.emails.read": {
                 title: "Email addresses",
-                desc: "Retrieve your Google email addresses"
+                desc: "Google email addresses"
             },
             "user.phonenumbers.read": {
                 title: "Phone Number",
-                desc: "Retrieve your personal phone numbers"
+                desc: "Personal phone numbers"
             },
             "userinfo.email": {
-                title: "Email address",
-                desc: "Retrieve your name, email address, language preference, and profile picture"
+                title: "Email address"
             },
             "userinfo.profile": {
                 title: "Public Profile",
@@ -117,35 +117,28 @@ const IDP_SCOPE_DESC = {
             /* Google apps */
             "calendar": {
                 title: "Calendar (edit/delete)",
-                desc: "Retrieve, change, or permanently delete any calendar you can access using Google Calendar"
+                desc: "Calendars you can access using Google Calendar"
             },
             "calendar.readonly": {
                 title: "Calendar (ready only)",
-                desc: "Retrieve any calendar you can access using your Google Calendar"
+                desc: "Calendars you can access using Google Calendar"
             },
             "gmail.readonly": {
                 title: "Gmail Messages (read only)",
-                desc: "Retrieve your email messages and settings"
+                desc: "Email messages and settings"
             },
             "drive.readonly": {
-                title: "Google Drive files (ready only)",
-                // "See and download all your Google Drive files"
-                desc: "Retrieve all your Google Drive files"
+                title: "Google Drive files (ready only)"
             },
             "drive": {
-                title: "Google Drive files (edit/delete)",
-                // "See, edit, create, and delete all of your Google Drive files"
-                desc: "Retrieve, change, create, or delete all of your Google Drive files"
+                title: "Google Drive files (edit/create/delete)"
             },
             "photoslibrary.readonly": {
-                title: "Google Photos (read only)",
-                // "View your Google Photos library"
-                desc: "Retrieve your Google Photos library"
+                title: "Google Photos (read only)"
             },
             "youtube.readonly": {
                 title: "YouTube account (read only)",
-                // "View your YouTube account"
-                desc: "Retrieve your YouTube account"
+                desc: "Info on your YouTube account"
             }
         }
     },
@@ -158,11 +151,11 @@ const IDP_SCOPE_DESC = {
         "non_basic_scopes": {
             "email": {
                 title: "Email address",
-                desc: "Retrieve your email address (Can be hidden during login)"
+                desc: "(can be hidden during login)"
             },
             "openid": {
                 title: "User ID",
-                desc: "Retrieve a unique user ID for the app"
+                desc: "Unique user ID for the app"
             }
         }
     }
@@ -170,8 +163,7 @@ const IDP_SCOPE_DESC = {
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 + "|https://(.*)\\.facebook\\.com/oauth(.*)"
-+ "|https://graph\\.facebook\\.com/(.*)" 
-+ "|https://(.*)\\.facebook\\.com/(.*)/oauth(.*)"
++ "|https://graph\\.facebook\\.com/(.*)"
 // Google
 + "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
 + "|https://oauth2\\.googleapis\\.com/(.*)"
@@ -179,6 +171,8 @@ const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 + "|https://googleapis\\.com/oauth(.*)"
 // Apple
 + "|https://(.*)\\.apple\\.com/auth(.*)";
+
+var processed_idps = [];
 
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     // ask script to search for SSO logins
@@ -189,10 +183,13 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
+        const url = request.redirectUrl;
         const regex = new RegExp(IDP_ENDPOINT_REGEX);
-        if (regex.test(request.redirectUrl)) {
-            showResult(request.redirectUrl);
-        } 
+        const idp = getProviderName(url);
+        if (!processed_idps.includes(idp) && regex.test(url)) {
+            showResult(url);
+            processed_idps.push(idp);
+        }
     }
 );
 
@@ -210,6 +207,10 @@ function getScopeContent(url) {
     const idp = getProviderName(url);
     const content = newElement("card-content");
 
+    // heading for the content area
+    content.appendChild(newElement("card-content-header", "Retrieve your ..."));
+    content.appendChild(newElement("hr-after-basic-scopes"));
+
     // get scope values from url
     var url_scopes = extractScopesFromUrl(url);
  
@@ -217,7 +218,13 @@ function getScopeContent(url) {
     if (idp === "Google" || idp === "Facebook" || (idp === "Apple" && url_scopes.includes("name"))) {
         // (basic info is optional for Sign in with Apple)
         const basic_info = IDP_SCOPE_DESC[idp]["basic_info"];
-        content.appendChild(newElement("scope-title", basic_info.title));
+        let title = newElement("scope-title", basic_info.title);
+        if (basic_info.hasOwnProperty("title_label")) {
+            // label to indicated required fields
+            title.appendChild(newElement("scope-title-required", basic_info.title_label));
+        }
+        content.appendChild(title);
+        // individual attributes
         basic_info.attributes.forEach(attr => {
             content.appendChild(newElement("scope-desc", attr));
         });
@@ -225,11 +232,21 @@ function getScopeContent(url) {
     }
 
     // non-basic info
+    let counter = 1;
     for (var key of Object.keys(IDP_SCOPE_DESC[idp]["non_basic_scopes"])) {
         if (url_scopes.length > 0 && url_scopes.includes(key)) {
             const val = IDP_SCOPE_DESC[idp]["non_basic_scopes"][key];
-            content.appendChild(newElement("scope-title", val.title));
-            content.appendChild(newElement("scope-desc", val.desc));
+            let title = newElement("scope-title", val.title);
+            content.appendChild(title);
+
+            if (val.hasOwnProperty("desc")) { // optional description
+                content.appendChild(newElement("scope-desc", val.desc));
+            }
+            
+            if (counter < url_scopes.length) {
+                content.appendChild(newElement("hr-after-basic-scopes"));
+            }
+            counter++;
         }
     }
 
@@ -245,11 +262,23 @@ function getScopeContent(url) {
             content.appendChild(newElement("scope-title", val));
         }
     }
+    //content.appendChild(newElement("hr-after-basic-scopes"));
     return content;
 }
 
-function showResult(url) {
+function isResultAlreadyProcessed(idp) {
+    const selector = "[card-header='" + idp + "']";
+    if (document.querySelectorAll(selector).length > 0) {
+        return true;
+    }
+    return false;
+}
+
+async function showResult(url) {
     const idp = getProviderName(url);
+    if (isResultAlreadyProcessed(idp)) {
+        return true;
+    }
     
     // show idp info on a new card
     const header = newElement("card-header", idp);
@@ -263,6 +292,8 @@ function showResult(url) {
     const column = newElement("column");
     column.appendChild(card);
     document.getElementById("login-options").appendChild(column);
+
+    return true;
 }
 
 function getProviderName(url) {
@@ -280,17 +311,19 @@ function getProviderName(url) {
 }
 
 function extractScopesFromUrl(url) {
-    const str = String(url);
+    let str = String(url);
     
-    if (!str.includes("scope=")) {
+    if (!str.includes("scope")) {
         return []; 
     }
+    str = str.replace("scope%3D", "scope=");
     
     // substr following scope=
     let idx1 = str.indexOf("scope=") + 6;
     let ss1 = str.substring(idx1);
     
     // first & after scope=
+    ss1 = ss1.replace("%26", "&");
     let idx2 = ss1.indexOf("&");
     if (idx2 == -1) { // none
         idx2 = str.length;
@@ -300,11 +333,15 @@ function extractScopesFromUrl(url) {
     const scope = str.substring(idx1, idx2)
     
     // split into individual scope values
-    let scope_arr = scope.split(/%20|%2C|,|\+/i);
+    let scope_arr = scope.split(/%20|%2B|%2C|%252C|,|\+/i);
     scope_arr.forEach(function(val, index, arr) {
+        console.log(val);
         if (val.includes("%2F")) {
             let i1 = val.lastIndexOf("%2F");
             arr[index] = val.substring(i1 + 3);
+        } else if (val.includes("%252C")) {
+            let i1 = val.lastIndexOf("%252C");
+            arr[index] = val.substring(i1 + 5);
         }
     });
     return scope_arr;

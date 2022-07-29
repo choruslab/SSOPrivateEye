@@ -25,7 +25,8 @@ body {
     display: flex;
     flex-direction: column;
     white-space: initial;
-    width: 200px;
+    min-width: 200px;
+    max-width: 400px;
 }
 
 .card-header {
@@ -45,11 +46,38 @@ body {
     margin-bottom: 3px;
 }
 
+.popup-header {
+    display: inline-block;
+}
+
+.popup-header > h4 {
+    display: inline;
+}
+
+.popup-header > h5 {
+    display: inline;
+    margin-left: 4em;
+}
+
+.card-content-header {
+    font-size: 13px;
+    font-style: italic;
+    font-stretch: expanded;
+    margin-top: 0.5em;
+}
+
 .scope-title {
     display: block;
     font-size: 1.17em;
     margin-top: 1em;
     font-weight: bold;
+}
+
+.scope-title-required {
+    display: inline-block;
+    font-size: 11px;
+    color: #FF0000;
+    padding-left: 5px;
 }
 
 .scope-desc {
@@ -59,7 +87,7 @@ body {
 }
 
 .hr-after-basic-scopes {
-    border-bottom: 1px solid #737373;
+    border-bottom: 1px solid #bebebe;
     margin: 0.5em 0 0 0;
 }
 

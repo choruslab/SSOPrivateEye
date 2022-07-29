@@ -8,7 +8,6 @@ const SSO_LOGIN_PATTERNS = [
     "[data-cy*='{idp}-sign-in']", // theguardian
     "[href*='signin/{idp}']", // imgur
     "#js-{idp}-oauth-login", // nytimes
-    "[href*='auth/{idp}']",
     "[href*='connect/{idp}']", // medium
     "[href*='signin?openid']", // imdb
     ".fm-sns-item.{idp}", // aliexpress
@@ -21,16 +20,18 @@ const SSO_LOGIN_PATTERNS = [
     "[data-provider*='{idp}']", // usatoday
     "[href*='{idp}/auth']", // envato
     "[href*='client={idp}']", // ilovepdf
-    ".iVatvW", ".dwhcjJ", // pixiv.net
-    "[href*='third_party={idp}']", // surveymonkey
+    "[href*='provider={idp}']", // pixiv.net (check google)
+    //"[class*='btn-{idp}']",
+    //"[href*='third_party={idp}']",
+    "[aria-label='Log in with {idp}']", // surveymonkey
     "[class*='loginform-btn--{idp}']", // livejournal
     "[href*='sso/{idp}']" // shutterstock
+    //"[data-testid*='social-auth-button-{idp}']"
 ];
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 + "|https://(.*)\\.facebook\\.com/oauth(.*)"
 + "|https://graph\\.facebook\\.com/(.*)" 
-+ "|https://(.*)\\.facebook\\.com/(.*)/oauth(.*)"
 // Google
 + "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
 + "|https://oauth2\\.googleapis\\.com/(.*)"
@@ -99,10 +100,8 @@ function sendResultToBackground(url) {
 }
 
 function extractLink(attr) {
-    console.log(attr);
     const regex = /("|')(.*?)("|')/;
     const link = attr.match(regex)[0];
-    console.log(link);
     return link;
 }
 
@@ -111,7 +110,7 @@ function ssoSearch() {
     idpLinkSearch();
 
     let searchPatterns = buildSearchPatterns();
-    console.log(searchPatterns);
+    console.log(document.querySelectorAll(searchPatterns));
     for (let el of document.querySelectorAll(searchPatterns)) {
         if (el.hasAttribute("href")) {
             sendServerRequest(el.href);
@@ -169,14 +168,10 @@ function sendServerRequest(url) {
         return; // TODO: send message for "No SSO found"
     }
 
-    chrome.runtime.sendMessage({
-        type: 'RETRY_REQUEST',
-        url: url
-    }, function(response) {
-        console.log("url sent to background script");
-    });
+    fetch(url)
+        .then(response => console.log(response))
+        .catch(err => console.log(err));
 
-    //fetch(url)
-    //    .then(response => console.log(response) )
-    //    .catch(err => sendResultToBackground(url));
+    sendResultToBackground(url);
+
 }

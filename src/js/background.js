@@ -2,8 +2,7 @@
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 + "|https://(.*)\\.facebook\\.com/oauth(.*)"
-+ "|https://graph\\.facebook\\.com/(.*)" 
-+ "|https://(.*)\\.facebook\\.com/(.*)/oauth(.*)"
++ "|https://graph\\.facebook\\.com/(.*)"
 // Google
 + "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
 + "|https://oauth2\\.googleapis\\.com/(.*)"
@@ -14,9 +13,16 @@ const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 
 chrome.webRequest.onBeforeRedirect.addListener(
     function(details) {
-        var redirectUrl = details.redirectUrl;
-        checkUrlAndRetryIfNeeded(redirectUrl);
-        sendResult(redirectUrl);
+        const redirectUrl = details.redirectUrl;
+        const regex = new RegExp(IDP_ENDPOINT_REGEX);
+        if (regex.test(redirectUrl)) {
+            // url is a match for idp
+            sendResult(redirectUrl);
+        } else {
+            // retry request to url
+            fetch(redirectUrl)
+                .then(response => console.log(response));
+        }
     }, {
         urls: ["http://*/*", "https://*/*"]
     }
@@ -46,7 +52,7 @@ function checkUrlAndRetryIfNeeded(url) {
         return;
     } else {
         // retry request to url
-        fetch(url, {redirect: 'manual'})
+        fetch(url)
             .then(response => console.log(response));
     }
 }
