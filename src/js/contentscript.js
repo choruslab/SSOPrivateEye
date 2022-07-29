@@ -56,7 +56,7 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
-function buildSearchPatterns() {
+function findSSOInCurrentPage() {
     let patterns = [];
     for (let pattern of SSO_LOGIN_PATTERNS) {
         if (pattern.includes("{idp}")) {
@@ -67,7 +67,8 @@ function buildSearchPatterns() {
             patterns.push(pattern);
         }
     }
-    return patterns.join(',');
+    const selectors = patterns.join(',');
+    return document.querySelectorAll(selectors);
 }
 
 function idpLinkSearch() {
@@ -107,12 +108,11 @@ function extractLink(attr) {
 }
 
 function ssoSearch() {
-    
+    // find and send idp links in current page
     idpLinkSearch();
 
-    let searchPatterns = buildSearchPatterns();
-    console.log(document.querySelectorAll(searchPatterns));
-    for (let el of document.querySelectorAll(searchPatterns)) {
+    let ssoOptionsFound = findSSOInCurrentPage();
+    for (let el of ssoOptionsFound) {
         if (el.hasAttribute("href")) {
             sendServerRequest(el.href);
         }
