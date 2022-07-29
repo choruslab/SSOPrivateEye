@@ -186,6 +186,7 @@ chrome.runtime.onMessage.addListener(
         const url = request.redirectUrl;
         const regex = new RegExp(IDP_ENDPOINT_REGEX);
         const idp = getProviderName(url);
+        // skip if idp has already been processed or if url is not idp
         if (!processed_idps.includes(idp) && regex.test(url)) {
             showResult(url);
             processed_idps.push(idp);
@@ -266,19 +267,8 @@ function getScopeContent(url) {
     return content;
 }
 
-function isResultAlreadyProcessed(idp) {
-    const selector = "[card-header='" + idp + "']";
-    if (document.querySelectorAll(selector).length > 0) {
-        return true;
-    }
-    return false;
-}
-
 async function showResult(url) {
     const idp = getProviderName(url);
-    if (isResultAlreadyProcessed(idp)) {
-        return true;
-    }
     
     // show idp info on a new card
     const header = newElement("card-header", idp);

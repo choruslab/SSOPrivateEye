@@ -9,6 +9,7 @@ const SSO_LOGIN_PATTERNS = [
     "[href*='signin/{idp}']", // imgur
     "#js-{idp}-oauth-login", // nytimes
     "[href*='connect/{idp}']", // medium
+    "[href*='auth/{idp}']",
     "[href*='signin?openid']", // imdb
     ".fm-sns-item.{idp}", // aliexpress
     ".{idp}-button", //xhamster
