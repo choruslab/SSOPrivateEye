@@ -1,33 +1,19 @@
 "use strict";
 
-const SSO_LOGIN_PATTERNS = [
-    "#{idp}_form", // vimeo
-    "[aria-label='Sign in with {idp}']", // zoom
-    "#social-login-{idp}", // bit.ly
-    "[data-testid*='{idp}-login']", // tumblr
-    "[data-cy*='{idp}-sign-in']", // theguardian
-    "[href*='signin/{idp}']", // imgur
-    "#js-{idp}-oauth-login", // nytimes
-    "[href*='connect/{idp}']", // medium
-    "[href*='auth/{idp}']",
-    "[href*='signin?openid']", // imdb
-    ".fm-sns-item.{idp}", // aliexpress
-    ".{idp}-button", //xhamster
-    "#signin_{idp}_btn", // ebay
-    "[data-test*='provider-button-{idp}']", // fandom
-    "[action*='auth/{idp}']", // okezone
-    "[href*='connector/{idp}']", // researchgate
-    "[href*='login/{idp}']", // tinyurl
-    "[data-provider*='{idp}']", // usatoday
-    "[href*='{idp}/auth']", // envato
-    "[href*='client={idp}']", // ilovepdf
-    "[href*='provider={idp}']", // pixiv.net (check google)
-    //"[class*='btn-{idp}']",
-    //"[href*='third_party={idp}']",
-    "[aria-label='Log in with {idp}']", // surveymonkey
-    "[class*='loginform-btn--{idp}']", // livejournal
-    "[href*='sso/{idp}']" // shutterstock
-    //"[data-testid*='social-auth-button-{idp}']"
+const SSO_LOGIN_XPATH = [
+    "//*[contains(text(), 'Log in with')]", // vimeo, bitly
+    "//*[contains(text(), 'Login with')]", 
+    "//*[contains(text(), 'Continue with')]", // tumblr, nytimes, ebay, (researchgate)
+    "//*[contains(text(), 'sign in with')]", // zoom, (usatoday)
+    "//*[contains(text(), 'continue with')]", // theguardian, aliexpress
+    "//*[contains(text(), 'Sign In with')]", // imgur
+    "//*[contains(text(), 'Sign in with')]", // medium, imdb, fandom, xhamster
+    //"//*[contains(@alt, '{idp}')]", // bitly
+    //"//*[contains(text(), '{idp}')]" // theguardian
+    //"//*[contains(@aria-label, 'Sign in with')]", // zoom
+
+    // EXTRA PATTERNS NEEDED FOR TESTING SET
+    "//*[contains(text(), 'login via')]" // tinyurl
 ];
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
@@ -47,10 +33,11 @@ const IDP_NAMES = [
     "APPLE", "Apple", "apple", "appl"
 ];
 
+var processedElements = []; // to keep track of processed SSO matches
+
 chrome.runtime.onMessage.addListener(
     function(request, sender) {
         if (request.msg === "searchSSO") {
-            console.log("received search request");
             ssoSearch();
         }
     }
@@ -75,10 +62,12 @@ function idpLinkSearch() {
     let regex = new RegExp(IDP_ENDPOINT_REGEX);
     for (let el of document.querySelectorAll("*")) {
         // search links for idp match
+        if (processedElements.includes(el)) { continue; }
         for (let i = 0; i < el.attributes.length; i++) {
             let val = el.attributes[i].value;
             if (regex.test(val)) {
                 sendResult(val);
+                processedElements.push(el);
             }
         }
     }
@@ -87,8 +76,11 @@ function idpLinkSearch() {
 function sendResult(redirectUrl) {
     console.log(redirectUrl);
     // send results to interface
-    chrome.runtime.sendMessage({"redirectUrl": redirectUrl}, function(response) {
-        console.log("result sent from content script");
+    chrome.runtime.sendMessage({
+        msg: 'SHOW_RESULT',
+        redirectUrl: redirectUrl
+    }, function(response) {
+        // redirect url sent to popup
     });
 }
 
@@ -97,7 +89,7 @@ function sendResultToBackground(url) {
         type: 'RETRY_REQUEST',
         url: url
     }, function(response) {
-        console.log("url sent to background script");
+        // url sent to background script
     });
 }
 
@@ -107,26 +99,125 @@ function extractLink(attr) {
     return link;
 }
 
+function makeRequestIfLinkIsFound(el) {
+    // check if we have processed this element already
+    if (processedElements.includes(el)) { return false; }
+
+    console.log(el.tagName);
+    // check if element contains sso link
+    let result = false;
+    if (el.hasAttribute("href")) {
+        console.log(el);
+        sendServerRequest(el.href);
+        result = true;
+    }
+    // check if it's a form element
+    else if (el.tagName === "FORM" || (el.hasAttribute("type") && el.getAttribute("type") === "submit")) {
+        console.log(el);
+        submitServerForm(el);
+        result = true;
+    }
+    // check if link is in onclick
+    else if (el.hasAttribute("onclick")) {
+        console.log(el);
+        const href = extractLink(el.getAttribute("onclick"));
+        if (href) {
+            sendServerRequest(href);
+            result = true;
+        }
+    }
+    processedElements.push(el);
+    return result;
+}
+
+/**
+ * @returns string with XPath query for finding SSO elements
+ */
+function getSSOSearchQuery() {
+    let query = "";
+    for (let xpath of SSO_LOGIN_XPATH) {
+        if (xpath.includes("{idp}")) {
+            //replace {idp} with idp name
+            for (let idp of IDP_NAMES) {
+                if (query.length > 0) { // include OR if query is non-empty
+                    query += "|";
+                }
+                query += xpath.replace("{idp}", idp);
+            }
+        } else {
+            // append xpath to query
+            if (query.length > 0) { // include OR if query is non-empty
+                query += "|";
+            }
+            query += xpath;
+        }
+    }
+    return query;
+}
+
+function appendChildren(el, result) {
+    if (el && el.hasChildNodes()) {
+        for (let i = 0; i < el.children.length; i++) {
+            result.push(el.children[i]);
+            if (el.children[i].hasChildNodes()) {
+                appendChildren(el.children[i], result);
+            }
+        }
+    }
+}
+
+function ssoLinkSearch() {
+    // build search query using xpath and idp name lists
+    const query = getSSOSearchQuery();
+
+    // find matches and make sso requests
+    const matches = document.evaluate(query, document, null, XPathResult.ANY_TYPE, null);
+    let match = matches.iterateNext();
+    while (match) {
+        let found = false;
+        
+        // find parent element with relevant info
+        let el = match;
+        while (el) {
+            let result = makeRequestIfLinkIsFound(el);
+            if (result) { 
+                found = true;
+                break;
+            }
+            el = el.parentElement; // continue search...
+        }
+        
+        // search sibling elements for relevant info
+        let children = [];
+        console.log(match);
+        let root = match.parentElement.closest('div');
+        appendChildren(root, children);
+        console.log(children);
+        for (let chld of children) {
+            if (makeRequestIfLinkIsFound(chld)) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            console.log("No SSO element found for this match");
+        }
+
+        // move onto next match
+        match = matches.iterateNext();
+    }
+}
+
 function ssoSearch() {
+    // reset processed list
+    processedElements = [];
+
     // find and send idp links in current page
     idpLinkSearch();
 
-    let ssoOptionsFound = findSSOInCurrentPage();
-    for (let el of ssoOptionsFound) {
-        if (el.hasAttribute("href")) {
-            sendServerRequest(el.href);
-        }
-        else if (el.hasAttribute("onclick")) {
-            const href = extractLink(el.getAttribute("onclick"));
-            sendServerRequest(href);
-        }
-        else if (el.hasAttribute("type") && el.getAttribute("type") === "submit") {
-            submitServerForm(el);
-        }
-        else if (el.tagName === "FORM") {
-            submitServerForm(el);
-        }
-    }
+    // find and make requests to sso links in current page
+    ssoLinkSearch();
+
 }
 
 function submitServerForm(el) {
@@ -139,7 +230,7 @@ function submitServerForm(el) {
     while (form.parentElement != null && form.tagName != "FORM") {
         form = form.parentElement;
     }
-    if (form === null) return; // no form found
+    if (form === null || form.tagName === "HTML") return; // no form found
     
     // form attributes
     const method = form.getAttribute("method");
@@ -166,13 +257,12 @@ function submitServerForm(el) {
 
 function sendServerRequest(url) {
     if (typeof url === "undefined") {
-        return; // TODO: send message for "No SSO found"
+        return; // nothing to do
     }
 
     fetch(url)
-        .then(response => console.log(response))
-        .catch(err => console.log(err));
+        .then(response => {})
+        .catch(err => {});
 
     sendResultToBackground(url);
-
 }

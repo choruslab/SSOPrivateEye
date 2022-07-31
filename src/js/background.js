@@ -40,9 +40,16 @@ chrome.runtime.onMessage.addListener(
 function sendResult(redirectUrl) {
     console.log(redirectUrl);
     // send results to interface
-    chrome.runtime.sendMessage({"redirectUrl": redirectUrl}, function(response) {
-        console.log("result sent from background");
+    chrome.runtime.sendMessage({
+        msg: 'SHOW_RESULT',
+        redirectUrl: redirectUrl
+    }, function(response) {
+        // redirect url sent to popup
     });
+
+    //chrome.runtime.sendMessage({"redirectUrl": redirectUrl}, function(response) {
+    //    console.log("result sent from background");
+    //});
 }
 
 function checkUrlAndRetryIfNeeded(url) {

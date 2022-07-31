@@ -183,13 +183,18 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        const url = request.redirectUrl;
-        const regex = new RegExp(IDP_ENDPOINT_REGEX);
-        const idp = getProviderName(url);
-        // skip if idp has already been processed or if url is not idp
-        if (!processed_idps.includes(idp) && regex.test(url)) {
-            showResult(url);
-            processed_idps.push(idp);
+        if (request.msg === "SHOW_RESULT") {
+            const url = request.redirectUrl;
+            const regex = new RegExp(IDP_ENDPOINT_REGEX);
+            const idp = getProviderName(url);
+            // skip if idp has already been processed or if url is not idp
+            if (!processed_idps.includes(idp) && regex.test(url)) {
+                showResult(url);
+                processed_idps.push(idp);
+            }
+        }
+        if (request.msg === "GET_NUMBER_OF_PROCESSED_IDPS") {
+            sendResponse({num_processed_idps: processed_idps.length});
         }
     }
 );
@@ -297,7 +302,7 @@ function getProviderName(url) {
     if (str.includes("apple")) {
         return "Apple";
     }
-    return "";
+    return new URL(url).hostname;
 }
 
 function extractScopesFromUrl(url) {
