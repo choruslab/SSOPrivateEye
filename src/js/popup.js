@@ -176,22 +176,13 @@ var processed_idps = [];
 
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     // ask script to search for SSO logins
-    chrome.tabs.sendMessage(tabs[0].id, {msg: "searchSSO"}, function(response) {
-        //console.log(response.result);
-    });
+    chrome.tabs.sendMessage(tabs[0].id, {msg: "searchSSO"});
 });
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if (request.msg === "SHOW_RESULT") {
-            const url = request.redirectUrl;
-            const regex = new RegExp(IDP_ENDPOINT_REGEX);
-            const idp = getProviderName(url);
-            // skip if idp has already been processed or if url is not idp
-            if (!processed_idps.includes(idp) && regex.test(url)) {
-                showResult(url);
-                processed_idps.push(idp);
-            }
+            showResult(request.redirectUrl);
         }
         if (request.msg === "GET_NUMBER_OF_PROCESSED_IDPS") {
             sendResponse({num_processed_idps: processed_idps.length});
@@ -272,8 +263,14 @@ function getScopeContent(url) {
     return content;
 }
 
-async function showResult(url) {
+function showResult(url) {
     const idp = getProviderName(url);
+    const regex = new RegExp(IDP_ENDPOINT_REGEX);
+    
+    // skip if idp has already been processed or if url is not idp
+    if (processed_idps.includes(idp) || !regex.test(url)) {
+        return;
+    }
     
     // show idp info on a new card
     const header = newElement("card-header", idp);
@@ -287,6 +284,8 @@ async function showResult(url) {
     const column = newElement("column");
     column.appendChild(card);
     document.getElementById("login-options").appendChild(column);
+
+    processed_idps.push(idp);
 
     return true;
 }

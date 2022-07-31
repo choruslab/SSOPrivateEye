@@ -43,21 +43,6 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
-function findSSOInCurrentPage() {
-    let patterns = [];
-    for (let pattern of SSO_LOGIN_PATTERNS) {
-        if (pattern.includes("{idp}")) {
-            for (let idp of IDP_NAMES) {
-                patterns.push(pattern.replace("{idp}", idp));
-            }
-        } else {
-            patterns.push(pattern);
-        }
-    }
-    const selectors = patterns.join(',');
-    return document.querySelectorAll(selectors);
-}
-
 function idpLinkSearch() {
     let regex = new RegExp(IDP_ENDPOINT_REGEX);
     for (let el of document.querySelectorAll("*")) {
@@ -66,30 +51,25 @@ function idpLinkSearch() {
         for (let i = 0; i < el.attributes.length; i++) {
             let val = el.attributes[i].value;
             if (regex.test(val)) {
-                sendResult(val);
+                sendResultToPopup(val);
                 processedElements.push(el);
             }
         }
     }
 }
 
-function sendResult(redirectUrl) {
-    console.log(redirectUrl);
-    // send results to interface
+function sendResultToPopup(redirectUrl) {
     chrome.runtime.sendMessage({
         msg: 'SHOW_RESULT',
         redirectUrl: redirectUrl
-    }, function(response) {
-        // redirect url sent to popup
     });
+    console.log(redirectUrl);
 }
 
 function sendResultToBackground(url) {
     chrome.runtime.sendMessage({
-        type: 'RETRY_REQUEST',
+        msg: 'RETRY_REQUEST',
         url: url
-    }, function(response) {
-        // url sent to background script
     });
 }
 
@@ -103,23 +83,19 @@ function makeRequestIfLinkIsFound(el) {
     // check if we have processed this element already
     if (processedElements.includes(el)) { return false; }
 
-    console.log(el.tagName);
     // check if element contains sso link
     let result = false;
     if (el.hasAttribute("href")) {
-        console.log(el);
         sendServerRequest(el.href);
         result = true;
     }
     // check if it's a form element
     else if (el.tagName === "FORM" || (el.hasAttribute("type") && el.getAttribute("type") === "submit")) {
-        console.log(el);
         submitServerForm(el);
         result = true;
     }
     // check if link is in onclick
     else if (el.hasAttribute("onclick")) {
-        console.log(el);
         const href = extractLink(el.getAttribute("onclick"));
         if (href) {
             sendServerRequest(href);
@@ -156,7 +132,7 @@ function getSSOSearchQuery() {
 }
 
 function appendChildren(el, result) {
-    if (el && el.hasChildNodes()) {
+    if (el && el.hasChildNodes() && el.tagName !== "SCRIPT") {
         for (let i = 0; i < el.children.length; i++) {
             result.push(el.children[i]);
             if (el.children[i].hasChildNodes()) {
@@ -175,6 +151,12 @@ function ssoLinkSearch() {
     let match = matches.iterateNext();
     while (match) {
         let found = false;
+
+        if (processedElements.includes (match) || match.tagName == "SCRIPT") {
+            // move onto next match
+            match = matches.iterateNext();
+            continue;
+        }
         
         // find parent element with relevant info
         let el = match;
@@ -189,13 +171,16 @@ function ssoLinkSearch() {
         
         // search sibling elements for relevant info
         let children = [];
+        console.log("Match and its child elements:");
         console.log(match);
         let root = match.parentElement.closest('div');
-        appendChildren(root, children);
-        console.log(children);
-        for (let chld of children) {
-            if (makeRequestIfLinkIsFound(chld)) {
-                found = true;
+        if (root) {
+            appendChildren(root, children);
+            console.log(children);
+            for (let chld of children) {
+                if (makeRequestIfLinkIsFound(chld)) {
+                    found = true;
+                }
             }
         }
 

@@ -17,7 +17,7 @@ chrome.webRequest.onBeforeRedirect.addListener(
         const regex = new RegExp(IDP_ENDPOINT_REGEX);
         if (regex.test(redirectUrl)) {
             // url is a match for idp
-            sendResult(redirectUrl);
+            sendResultToPopup(redirectUrl);
         } else {
             // retry request to url
             fetch(redirectUrl)
@@ -29,27 +29,20 @@ chrome.webRequest.onBeforeRedirect.addListener(
 );
 
 chrome.runtime.onMessage.addListener(
-    function(msg, sender, sendResponse) {
-        console.log(msg);
-        if (msg.type == "RETRY_REQUEST") {
+    function(request, sender, sendResponse) {
+        console.log(request);
+        if (request.msg == "RETRY_REQUEST") {
             checkUrlAndRetryIfNeeded(msg.url);
         }
     }
 );
 
-function sendResult(redirectUrl) {
-    console.log(redirectUrl);
-    // send results to interface
+function sendResultToPopup(redirectUrl) {
     chrome.runtime.sendMessage({
         msg: 'SHOW_RESULT',
         redirectUrl: redirectUrl
-    }, function(response) {
-        // redirect url sent to popup
     });
-
-    //chrome.runtime.sendMessage({"redirectUrl": redirectUrl}, function(response) {
-    //    console.log("result sent from background");
-    //});
+    console.log(redirectUrl);
 }
 
 function checkUrlAndRetryIfNeeded(url) {
@@ -59,7 +52,6 @@ function checkUrlAndRetryIfNeeded(url) {
         return;
     } else {
         // retry request to url
-        fetch(url)
-            .then(response => console.log(response));
+        fetch(url).then(response => console.log(response));
     }
 }
