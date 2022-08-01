@@ -244,6 +244,14 @@ function sendServerRequest(url) {
     if (typeof url === "undefined") {
         return; // nothing to do
     }
+    // check url protocol
+    if (!url.startsWith("http")) {
+        return;
+    }
+    // send request only if it's to the site's server
+    if (new URL(url).hostname != document.location.hostname) {
+        return;
+    }
 
     fetch(url)
         .then(response => {})
