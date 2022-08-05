@@ -33,7 +33,7 @@ const IDP_NAMES = [
     "APPLE", "Apple", "apple", "appl"
 ];
 
-var processedElements = []; // to keep track of processed SSO matches
+var processedElements = new Set(); // to keep track of processed SSO matches
 
 chrome.runtime.onMessage.addListener(
     function(request, sender) {
@@ -47,12 +47,12 @@ function idpLinkSearch() {
     let regex = new RegExp(IDP_ENDPOINT_REGEX);
     for (let el of document.querySelectorAll("*")) {
         // search links for idp match
-        if (processedElements.includes(el)) { continue; }
+        if (processedElements.has(el)) { continue; }
         for (let i = 0; i < el.attributes.length; i++) {
             let val = el.attributes[i].value;
             if (regex.test(val)) {
                 sendResultToPopup(val);
-                processedElements.push(el);
+                processedElements.add(el);
             }
         }
     }
@@ -79,30 +79,33 @@ function extractLink(attr) {
     return link;
 }
 
-function makeRequestIfLinkIsFound(el) {
+async function makeRequestIfLinkIsFound(el) {
     // check if we have processed this element already
-    if (processedElements.includes(el)) { return false; }
+    if (processedElements.has(el)) { return false; }
+    
+    // mark el as processed before initiating a request
+    processedElements.add(el);
 
     // check if element contains sso link
     let result = false;
     if (el.hasAttribute("href")) {
-        sendServerRequest(el.href);
+        console.log(el);
+        await sendServerRequest(el.href);
         result = true;
     }
     // check if it's a form element
     else if (el.tagName === "FORM" || (el.hasAttribute("type") && el.getAttribute("type") === "submit")) {
-        submitServerForm(el);
+        await submitServerForm(el);
         result = true;
     }
     // check if link is in onclick
     else if (el.hasAttribute("onclick")) {
         const href = extractLink(el.getAttribute("onclick"));
         if (href) {
-            sendServerRequest(href);
+            await sendServerRequest(href);
             result = true;
         }
     }
-    processedElements.push(el);
     return result;
 }
 
@@ -134,7 +137,10 @@ function getSSOSearchQuery() {
 function appendChildren(el, result) {
     if (el && el.hasChildNodes() && el.tagName !== "SCRIPT") {
         for (let i = 0; i < el.children.length; i++) {
-            result.push(el.children[i]);
+            const chld = el.children[i];
+            if (chld.tagName == "DIV" || chld.tagName == "A" || chld.tagName == "BUTTON" || chld.tagName == "FORM" || chld.hasAttribute("href")) {
+                result.push(chld);
+            }
             if (el.children[i].hasChildNodes()) {
                 appendChildren(el.children[i], result);
             }
@@ -142,70 +148,75 @@ function appendChildren(el, result) {
     }
 }
 
-function ssoLinkSearch() {
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function rpLinkSearch() {
     // build search query using xpath and idp name lists
     const query = getSSOSearchQuery();
 
     // find matches and make sso requests
-    const matches = document.evaluate(query, document, null, XPathResult.ANY_TYPE, null);
-    let match = matches.iterateNext();
-    while (match) {
-        let found = false;
+    const scan = async height => {
+        console.log("Searching at height " + height);
+        const matches = document.evaluate(query, document, null, XPathResult.ANY_TYPE, null);
+        let match = matches.iterateNext();
+        while (match) {
 
-        if (processedElements.includes (match) || match.tagName == "SCRIPT") {
-            // move onto next match
-            match = matches.iterateNext();
-            continue;
-        }
-        
-        // find parent element with relevant info
-        let el = match;
-        while (el) {
-            let result = makeRequestIfLinkIsFound(el);
-            if (result) { 
-                found = true;
-                break;
+            console.log(match);
+            if (match.tagName == "SCRIPT" || match.tagName == "TITLE") {
+                // move onto next match
+                match = matches.iterateNext();
+                continue;
             }
-            el = el.parentElement; // continue search...
-        }
-        
-        // search sibling elements for relevant info
-        let children = [];
-        console.log("Match and its child elements:");
-        console.log(match);
-        let root = match.parentElement.closest('div');
-        if (root) {
-            appendChildren(root, children);
-            console.log(children);
-            for (let chld of children) {
-                if (makeRequestIfLinkIsFound(chld)) {
-                    found = true;
+
+            // prepare root node for search tree
+            let root = match;
+            for (let j = 0; j < height; j++) {
+                if (root.parentElement) { // increase search height
+                    root = root.parentElement;
+                } else { // at max height
+                    console.log("search complete");
+                    return;
                 }
+                console.log(root);
             }
+
+            // search sibling elements for relevant info
+            let children = [root];
+            appendChildren(root, children);
+            for (let chld of children) {
+                makeRequestIfLinkIsFound(chld);
+            }
+
+            match = matches.iterateNext();
         }
 
-        if (!found) {
-            console.log("No SSO element found for this match");
-        }
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        // move onto next match
-        match = matches.iterateNext();
+        // query result status and expand search if needed
+        chrome.runtime.sendMessage({
+            msg: "QUERY_RESULT"
+        }, function (r) {
+            if(r.received_results == false) {
+                scan(height + 1).then(() => console.log("loop complete"));
+            }
+        });
     }
+    scan(1).then(() => console.log("Search complete"));
 }
 
 function ssoSearch() {
     // reset processed list
-    processedElements = [];
+    processedElements = new Set();
 
     // find and send idp links in current page
     idpLinkSearch();
 
     // find and make requests to sso links in current page
-    ssoLinkSearch();
+    rpLinkSearch();
 
 }
 
-function submitServerForm(el) {
+async function submitServerForm(el) {
     // parameters set by the current choice
     const param = el.getAttribute("name");
     const value = el.getAttribute("value");
@@ -220,6 +231,7 @@ function submitServerForm(el) {
     // form attributes
     const method = form.getAttribute("method");
     const path = form.getAttribute("action");
+    if (path === null || method === null) return;
     
     // set form values
     let formData = new FormData(form);
@@ -235,27 +247,29 @@ function submitServerForm(el) {
     }
     
     // submit form
-    let req = new XMLHttpRequest();
-    req.open(method, path);
-    req.send(new URLSearchParams(formData));
+    return fetch(path, {
+        method: method,
+        body: new URLSearchParams(formData)
+    });
 }
 
-function sendServerRequest(url) {
+async function sendServerRequest(url) {
     if (typeof url === "undefined") {
         return; // nothing to do
     }
     // check url protocol
-    if (!url.startsWith("http")) {
+    if (!String(url).startsWith("http")) {
         return;
     }
     // send request only if it's to the site's server
-    if (new URL(url).hostname != document.location.hostname) {
+    const rp = String(document.location.hostname);
+    if (!rp.includes(new URL(url).hostname)) {
         return;
     }
 
-    fetch(url)
-        .then(response => {})
-        .catch(err => {});
+    console.log("Sending request to: " + url);
 
-    sendResultToBackground(url);
+    return fetch(url);
+
+    //sendResultToBackground(url);
 }

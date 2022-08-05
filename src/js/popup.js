@@ -184,8 +184,9 @@ chrome.runtime.onMessage.addListener(
         if (request.msg === "SHOW_RESULT") {
             showResult(request.redirectUrl);
         }
-        if (request.msg === "GET_NUMBER_OF_PROCESSED_IDPS") {
-            sendResponse({num_processed_idps: processed_idps.length});
+        if (request.msg === "QUERY_RESULT") {
+            const status = processed_idps.length > 0 ? true : false;
+            sendResponse({received_results: status});
         }
     }
 );
@@ -271,6 +272,7 @@ function showResult(url) {
     if (processed_idps.includes(idp) || !regex.test(url)) {
         return;
     }
+    processed_idps.push(idp);
     
     // show idp info on a new card
     const header = newElement("card-header", idp);
@@ -284,8 +286,6 @@ function showResult(url) {
     const column = newElement("column");
     column.appendChild(card);
     document.getElementById("login-options").appendChild(column);
-
-    processed_idps.push(idp);
 
     return true;
 }

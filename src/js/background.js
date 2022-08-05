@@ -32,7 +32,7 @@ chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         console.log(request);
         if (request.msg == "RETRY_REQUEST") {
-            checkUrlAndRetryIfNeeded(msg.url);
+            checkUrlAndRetryIfNeeded(request.url);
         }
     }
 );
