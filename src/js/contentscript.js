@@ -8,9 +8,6 @@ const SSO_LOGIN_XPATH = [
     "//*[contains(text(), 'continue with')]", // theguardian, aliexpress
     "//*[contains(text(), 'Sign In with')]", // imgur
     "//*[contains(text(), 'Sign in with')]", // medium, imdb, fandom, xhamster
-    //"//*[contains(@alt, '{idp}')]", // bitly
-    //"//*[contains(text(), '{idp}')]" // theguardian
-    //"//*[contains(@aria-label, 'Sign in with')]", // zoom
 
     // EXTRA PATTERNS NEEDED FOR TESTING SET
     "//*[contains(text(), 'login via')]" // tinyurl
@@ -81,32 +78,30 @@ function extractLink(attr) {
 
 async function makeRequestIfLinkIsFound(el) {
     // check if we have processed this element already
-    if (processedElements.has(el)) { return false; }
+    if (processedElements.has(el)) {
+        return Promise.resolve();
+    }
     
     // mark el as processed before initiating a request
     processedElements.add(el);
 
     // check if element contains sso link
-    let result = false;
     if (el.hasAttribute("href")) {
         console.log(el);
-        await sendServerRequest(el.href);
-        result = true;
+        return sendServerRequest(el.href);
     }
     // check if it's a form element
     else if (el.tagName === "FORM" || (el.hasAttribute("type") && el.getAttribute("type") === "submit")) {
-        await submitServerForm(el);
-        result = true;
+        return submitServerForm(el);
     }
     // check if link is in onclick
     else if (el.hasAttribute("onclick")) {
         const href = extractLink(el.getAttribute("onclick"));
         if (href) {
-            await sendServerRequest(href);
-            result = true;
+            return sendServerRequest(href);
         }
     }
-    return result;
+    return Promise.resolve();
 }
 
 /**
@@ -157,7 +152,7 @@ async function rpLinkSearch() {
     // find matches and make sso requests
     const scan = async height => {
         console.log("Searching at height " + height);
-        const matches = document.evaluate(query, document, null, XPathResult.ANY_TYPE, null);
+        const matches = document.evaluate(query, document.cloneNode(true), null, XPathResult.ANY_TYPE, null);
         let match = matches.iterateNext();
         while (match) {
 
@@ -177,20 +172,19 @@ async function rpLinkSearch() {
                     console.log("search complete");
                     return;
                 }
-                console.log(root);
             }
 
-            // search sibling elements for relevant info
+            // search tree for sso links
             let children = [root];
             appendChildren(root, children);
             for (let chld of children) {
-                makeRequestIfLinkIsFound(chld);
+                await makeRequestIfLinkIsFound(chld);
             }
 
             match = matches.iterateNext();
         }
 
-        await new Promise(resolve => setTimeout(resolve, 500));
+        //await new Promise(resolve => setTimeout(resolve, 500));
 
         // query result status and expand search if needed
         chrome.runtime.sendMessage({
@@ -213,7 +207,6 @@ function ssoSearch() {
 
     // find and make requests to sso links in current page
     rpLinkSearch();
-
 }
 
 async function submitServerForm(el) {
@@ -250,7 +243,7 @@ async function submitServerForm(el) {
     return fetch(path, {
         method: method,
         body: new URLSearchParams(formData)
-    });
+    }).catch(err => {console.log(err);});
 }
 
 async function sendServerRequest(url) {
@@ -261,15 +254,9 @@ async function sendServerRequest(url) {
     if (!String(url).startsWith("http")) {
         return;
     }
-    // send request only if it's to the site's server
-    const rp = String(document.location.hostname);
-    if (!rp.includes(new URL(url).hostname)) {
-        return;
-    }
+    // TODO send request only if it's to the site's server
 
     console.log("Sending request to: " + url);
 
-    return fetch(url);
-
-    //sendResultToBackground(url);
+    return fetch(url).then(sendResultToBackground(url)).catch(err => {console.log(err);});
 }
