@@ -152,14 +152,12 @@ async function rpLinkSearch() {
     // find matches and make sso requests
     const scan = async height => {
         console.log("Searching at height " + height);
-        const matches = document.evaluate(query, document.cloneNode(true), null, XPathResult.ANY_TYPE, null);
-        let match = matches.iterateNext();
-        while (match) {
-
+        const matches = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        for (let i = 0; i < matches.snapshotLength; i++) {
+            const match = matches.snapshotItem(i);
             console.log(match);
             if (match.tagName == "SCRIPT" || match.tagName == "TITLE") {
                 // move onto next match
-                match = matches.iterateNext();
                 continue;
             }
 
@@ -180,11 +178,8 @@ async function rpLinkSearch() {
             for (let chld of children) {
                 await makeRequestIfLinkIsFound(chld);
             }
-
-            match = matches.iterateNext();
         }
 
-        //await new Promise(resolve => setTimeout(resolve, 500));
 
         // query result status and expand search if needed
         chrome.runtime.sendMessage({
@@ -248,11 +243,12 @@ async function submitServerForm(el) {
 
 async function sendServerRequest(url) {
     if (typeof url === "undefined") {
-        return; // nothing to do
+        return Promise.resolve(); // nothing to do
     }
+
     // check url protocol
     if (!String(url).startsWith("http")) {
-        return;
+        return Promise.resolve();
     }
     // TODO send request only if it's to the site's server
 
