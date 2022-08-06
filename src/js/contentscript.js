@@ -1,16 +1,20 @@
 "use strict";
 
 const SSO_LOGIN_XPATH = [
-    "//*[contains(text(), 'Log in with')]", // vimeo, bitly
-    "//*[contains(text(), 'Login with')]", 
-    "//*[contains(text(), 'Continue with')]", // tumblr, nytimes, ebay, (researchgate)
-    "//*[contains(text(), 'sign in with')]", // zoom, (usatoday)
-    "//*[contains(text(), 'continue with')]", // theguardian, aliexpress
-    "//*[contains(text(), 'Sign In with')]", // imgur
-    "//*[contains(text(), 'Sign in with')]", // medium, imdb, fandom, xhamster
+    // ignores first letter `L` to cover upper/lower case
+    "//*[contains(text(), 'og in with')]", // vimeo, bitly, (ilovepdf, surveymonkey)
+    "//*[contains(text(), 'ogin with')]",  // (instructure)
+    // ignores first letter `C`
+    "//*[contains(text(), 'ontinue with')]", // tumblr, nytimes, ebay, theguardian, aliexpress, (researchgate, pixiv)
+    // ignores first letter `S`
+    "//*[contains(text(), 'ign in with')]", // zoom, medium, imdb, fandom, xhamster, (usatoday)
+    "//*[contains(text(), 'ign In with')]", // imgur
 
     // EXTRA PATTERNS NEEDED FOR TESTING SET
-    "//*[contains(text(), 'login via')]" // tinyurl
+    // ignores first letter `L`
+    "//*[contains(text(), 'ogin via')]", // tinyurl
+    "//*[contains(text(), 'one of these options')]", // booking
+    "//*[contains(@data-text, 'connect using')]" // livejournal
 ];
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
@@ -23,12 +27,6 @@ const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 + "|https://googleapis\\.com/oauth(.*)"
 // Apple
 + "|https://(.*)\\.apple\\.com/auth(.*)";
-
-const IDP_NAMES = [
-    "GOOGLE", "Google", "google", "gmail", "Gmail", "ggl",
-    "FACEBOOK", "Facebook", "facebook", "FaceBook", "fb",
-    "APPLE", "Apple", "apple", "appl"
-];
 
 var processedElements = new Set(); // to keep track of processed SSO matches
 
@@ -43,8 +41,10 @@ chrome.runtime.onMessage.addListener(
 function idpLinkSearch() {
     let regex = new RegExp(IDP_ENDPOINT_REGEX);
     for (let el of document.querySelectorAll("*")) {
-        // search links for idp match
-        if (processedElements.has(el)) { continue; }
+        if (processedElements.has(el)) {
+            continue;
+        }
+        // search attributes for idp match
         for (let i = 0; i < el.attributes.length; i++) {
             let val = el.attributes[i].value;
             if (regex.test(val)) {
@@ -110,21 +110,11 @@ async function makeRequestIfLinkIsFound(el) {
 function getSSOSearchQuery() {
     let query = "";
     for (let xpath of SSO_LOGIN_XPATH) {
-        if (xpath.includes("{idp}")) {
-            //replace {idp} with idp name
-            for (let idp of IDP_NAMES) {
-                if (query.length > 0) { // include OR if query is non-empty
-                    query += "|";
-                }
-                query += xpath.replace("{idp}", idp);
-            }
-        } else {
-            // append xpath to query
-            if (query.length > 0) { // include OR if query is non-empty
-                query += "|";
-            }
-            query += xpath;
+        // append xpath to query
+        if (query.length > 0) { // include OR if query is non-empty
+            query += "|";
         }
+        query += xpath;
     }
     return query;
 }
@@ -142,8 +132,6 @@ function appendChildren(el, result) {
         }
     }
 }
-
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function rpLinkSearch() {
     // build search query using xpath and idp name lists
