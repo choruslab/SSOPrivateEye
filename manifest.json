@@ -10,9 +10,7 @@
     "default_popup": "src/popup.html"
   },
   "permissions": [
-    "webRequest"
-  ],
-  "optional_permissions": [
+    "webRequest",
     "http://*/*",
     "https://*/*"
   ],
