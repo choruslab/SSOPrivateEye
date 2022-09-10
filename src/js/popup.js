@@ -163,14 +163,17 @@ const IDP_SCOPE_DESC = {
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 + "|https://(.*)\\.facebook\\.com/oauth(.*)"
++ "|https(:|%3A)(\/\/|%2F%2F)(.*).facebook.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
 + "|https://graph\\.facebook\\.com/(.*)"
 // Google
 + "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
++ "|https(:|%3A)(\/\/|%2F%2F)(.*).google.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
 + "|https://oauth2\\.googleapis\\.com/(.*)"
 + "|https://openidconnect\\.googleapis\\.com/(.*)"
 + "|https://googleapis\\.com/oauth(.*)"
 // Apple
-+ "|https://(.*)\\.apple\\.com/auth(.*)";
++ "|https://(.*)\\.apple\\.com/auth(.*)"
++ "|https(:|%3A)(\/\/|%2F%2F)(.*).apple.com(\/|%2F)auth(.*)[^'\"]+";
 
 var processed_idps = [];
 

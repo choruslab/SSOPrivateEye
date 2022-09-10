@@ -8,25 +8,36 @@ const SSO_LOGIN_XPATH = [
     "//*[contains(text(), 'ontinue with')]", // tumblr, nytimes, ebay, theguardian, aliexpress, (researchgate, pixiv)
     // ignores first letter `S`
     "//*[contains(text(), 'ign in with')]", // zoom, medium, imdb, fandom, xhamster, (usatoday)
-    "//*[contains(text(), 'ign In with')]", // imgur
+    "//*[contains(text(), 'ign In with')]", // imgur,
+    "//*[contains(text(), 'ign in With')]",
 
     // EXTRA PATTERNS NEEDED FOR TESTING SET
     // ignores first letter `L`
     "//*[contains(text(), 'ogin via')]", // tinyurl
     "//*[contains(text(), 'one of these options')]", // booking
-    "//*[contains(@data-text, 'connect using')]" // livejournal
+    "//*[contains(@data-text, 'connect using')]", // livejournal
+
+    "//*[contains(text(), 'ign In')]",
+    "//*[text()[contains(.,'ign In')]]",
+    "//*[contains(text(), 'ign in')]",
+    "//*[text()[contains(.,'ogin with')]]",
+    "//*[text()[contains(.,'ign in using')]]"
+
 ];
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 + "|https://(.*)\\.facebook\\.com/oauth(.*)"
++ "|https(:|%3A)(\/\/|%2F%2F)(.*).facebook.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
 + "|https://graph\\.facebook\\.com/(.*)" 
 // Google
 + "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
++ "|https(:|%3A)(\/\/|%2F%2F)(.*).google.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
 + "|https://oauth2\\.googleapis\\.com/(.*)"
 + "|https://openidconnect\\.googleapis\\.com/(.*)"
 + "|https://googleapis\\.com/oauth(.*)"
 // Apple
-+ "|https://(.*)\\.apple\\.com/auth(.*)";
++ "|https://(.*)\\.apple\\.com/auth(.*)"
++ "|https(:|%3A)(\/\/|%2F%2F)(.*).apple.com(\/|%2F)auth(.*)[^'\"]+";
 
 var processedElements = new Set(); // to keep track of processed SSO matches
 
@@ -71,9 +82,9 @@ function sendResultToBackground(url) {
 }
 
 function extractLink(attr) {
-    const regex = /("|')(.*?)("|')/;
-    const link = attr.match(regex)[0];
-    return link;
+    const regex = /(?=')?((https?(:|%3A)(\/\/|%2F%2F))|\/)[^'")]+/;
+    const link = attr.match(regex);
+    return link ? link[0] : null;
 }
 
 async function makeRequestIfLinkIsFound(el) {
@@ -88,17 +99,20 @@ async function makeRequestIfLinkIsFound(el) {
     // check if element contains sso link
     if (el.hasAttribute("href")) {
         console.log(el);
-        return sendServerRequest(el.href);
+        const link = el.getAttribute("href");
+        return sendServerRequest(link);
     }
     // check if it's a form element
     else if (el.tagName === "FORM" || (el.hasAttribute("type") && el.getAttribute("type") === "submit")) {
         return submitServerForm(el);
     }
-    // check if link is in onclick
-    else if (el.hasAttribute("onclick")) {
-        const href = extractLink(el.getAttribute("onclick"));
-        if (href) {
-            return sendServerRequest(href);
+    // check if any of the attributes contain a link
+    else {
+        for (let att of el.attributes) {
+            let href = extractLink(att.value);
+            if (href) {
+                await sendServerRequest(href);
+            }
         }
     }
     return Promise.resolve();
@@ -141,6 +155,13 @@ async function rpLinkSearch() {
     const scan = async height => {
         console.log("Searching at height " + height);
         const matches = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        
+        // return immediately if there are no matches
+        if (matches.snapshotLength < 1) {
+            console.log("no matches found");
+            return;
+        }
+
         for (let i = 0; i < matches.snapshotLength; i++) {
             const match = matches.snapshotItem(i);
             console.log(match);
@@ -234,13 +255,18 @@ async function sendServerRequest(url) {
         return Promise.resolve(); // nothing to do
     }
 
+    if (String(url).startsWith("/")) {
+        url = window.location.protocol + "//" + window.location.host + url;
+    }
+
     // check url protocol
     if (!String(url).startsWith("http")) {
         return Promise.resolve();
     }
-    // TODO send request only if it's to the site's server
 
     console.log("Sending request to: " + url);
 
-    return fetch(url).then(sendResultToBackground(url)).catch(err => {console.log(err);});
+    return fetch(url)
+        .then(sendResultToBackground(url))
+        .catch(err => {console.log(err);});
 }
