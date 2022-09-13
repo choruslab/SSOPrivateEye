@@ -1,28 +1,27 @@
 "use strict";
 
 const SSO_LOGIN_XPATH = [
-    // ignores first letter `L` to cover upper/lower case
-    "//*[contains(text(), 'og in with')]", // vimeo, bitly, (ilovepdf, surveymonkey)
-    "//*[contains(text(), 'ogin with')]",  // (instructure)
-    // ignores first letter `C`
-    "//*[contains(text(), 'ontinue with')]", // tumblr, nytimes, ebay, theguardian, aliexpress, (researchgate, pixiv)
-    // ignores first letter `S`
-    "//*[contains(text(), 'ign in with')]", // zoom, medium, imdb, fandom, xhamster, (usatoday)
-    "//*[contains(text(), 'ign In with')]", // imgur,
-    "//*[contains(text(), 'ign in With')]",
+    // TRAINING SET PATTERNS 
+    // only match buttons for the more-general strings
+    "//button[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
+    "//span[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
+    "//button[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
+    "//span[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
+    // match any attribute or text node containing string
+    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'log in with')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'login with')]]",
+    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'sign in with')]]",
+    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'signin with')]]",
+    "//*[(@*|text())[contains(translate(., 'CONTINUEWH', 'continuewh'), 'continue with')]]",
+    "//*[text()[contains(translate(., 'ONEFTHSPI', 'onefthspi'), 'one of these options')]]",
+    "//*[text()[contains(translate(., 'WAYSTOIGN', 'waystoign'), 'ways to sign in')]]",
+    "//*[text()[contains(translate(., 'LOGINVA', 'loginva'), 'login via')]]",
 
-    // EXTRA PATTERNS NEEDED FOR TESTING SET
-    // ignores first letter `L`
-    "//*[contains(text(), 'ogin via')]", // tinyurl
-    "//*[contains(text(), 'one of these options')]", // booking
-    "//*[contains(@data-text, 'connect using')]", // livejournal
-
-    "//*[contains(text(), 'ign In')]",
-    "//*[text()[contains(.,'ign In')]]",
-    "//*[contains(text(), 'ign in')]",
-    "//*[text()[contains(.,'ogin with')]]",
-    "//*[text()[contains(.,'ign in using')]]"
-
+    // EXTRA PATTERNS REQUIRED FOR TESTING SET
+    "//*[@data-provider]",
+    "//*[text()[contains(., 'Or Use')]]",
+    "//*[@*[contains(., 'login-with-')]]",
+    "//*[text()[contains(translate(., 'SIGNU', 'signu'), 'sign in using')]]"
 ];
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
@@ -164,11 +163,11 @@ async function rpLinkSearch() {
 
         for (let i = 0; i < matches.snapshotLength; i++) {
             const match = matches.snapshotItem(i);
-            console.log(match);
             if (match.tagName == "SCRIPT" || match.tagName == "TITLE") {
                 // move onto next match
                 continue;
             }
+            console.log(match);
 
             // prepare root node for search tree
             let root = match;
@@ -198,7 +197,7 @@ async function rpLinkSearch() {
                 scan(height + 1).then(() => console.log("loop complete"));
             }
         });
-    }
+    };
     scan(1).then(() => console.log("Search complete"));
 }
 
@@ -254,6 +253,11 @@ async function sendServerRequest(url) {
     if (typeof url === "undefined") {
         return Promise.resolve(); // nothing to do
     }
+
+    /*if (String(url).charAt(0).match(/[a-z]/i)) {
+        url = "/" + url;
+        console.log(url);
+    }*/
 
     if (String(url).startsWith("/")) {
         url = window.location.protocol + "//" + window.location.host + url;
