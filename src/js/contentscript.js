@@ -2,20 +2,21 @@
 
 const SSO_LOGIN_XPATH = [
     // TRAINING SET PATTERNS 
+    // match any attribute or text node containing string
+    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'sign in with')]]",
+    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'signin with')]]",
+    "//*[(@*|text())[contains(translate(., 'CONTINUEWH', 'continuewh'), 'continue with')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'log in with')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'login with')]]",
+    // match strings that are typically only in text nodes
+    "//*[text()[contains(translate(., 'ONEFTHSPI', 'onefthspi'), 'one of these options')]]",
+    "//*[text()[contains(translate(., 'WAYSTOIGN', 'waystoign'), 'ways to sign in')]]",
+    "//*[text()[contains(translate(., 'LOGINVA', 'loginva'), 'login via')]]",
     // only match buttons for the more-general strings
     "//button[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
     "//span[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
     "//button[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
     "//span[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
-    // match any attribute or text node containing string
-    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'log in with')]]",
-    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'login with')]]",
-    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'sign in with')]]",
-    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'signin with')]]",
-    "//*[(@*|text())[contains(translate(., 'CONTINUEWH', 'continuewh'), 'continue with')]]",
-    "//*[text()[contains(translate(., 'ONEFTHSPI', 'onefthspi'), 'one of these options')]]",
-    "//*[text()[contains(translate(., 'WAYSTOIGN', 'waystoign'), 'ways to sign in')]]",
-    "//*[text()[contains(translate(., 'LOGINVA', 'loginva'), 'login via')]]",
 
     // EXTRA PATTERNS REQUIRED FOR TESTING SET
     "//*[@data-provider]",
