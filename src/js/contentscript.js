@@ -250,22 +250,16 @@ async function submitServerForm(el) {
     }).catch(err => {console.log(err);});
 }
 
-async function sendServerRequest(url) {
-    if (typeof url === "undefined") {
+async function sendServerRequest(link) {
+
+    if (typeof link === "undefined") {
         return Promise.resolve(); // nothing to do
     }
 
-    /*if (String(url).charAt(0).match(/[a-z]/i)) {
-        url = "/" + url;
-        console.log(url);
-    }*/
-
-    if (String(url).startsWith("/")) {
-        url = window.location.protocol + "//" + window.location.host + url;
-    }
+    const url = new URL(link, window.location.href);
 
     // check url protocol
-    if (!String(url).startsWith("http")) {
+    if (!url.protocol.startsWith("http")) {
         return Promise.resolve();
     }
 
