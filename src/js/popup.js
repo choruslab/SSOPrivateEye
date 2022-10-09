@@ -2,16 +2,13 @@
 
 const IDP_SCOPE_DESC = {
     "Facebook": {
-        "basic_scopes": ["public_profile"],
+        "basic_scopes": ["public_profile", "email"],
         "basic_info": {
             title: "Basic info",
             title_label: "(required)",
-            attributes: ["Name", "Profile Picture"]
+            attributes: ["Name", "Email address", "Profile Picture"]
         },
         "non_basic_scopes": {
-            "email": {
-                title: "Email Address"
-            },
             "openid": {
                 title: "User ID",
                 desc: "Unique user ID for the app"
@@ -67,16 +64,13 @@ const IDP_SCOPE_DESC = {
         }
     },
     "Google": {
-        "basic_scopes": ["profile"],
+        "basic_scopes": ["profile", "email", "userinfo.email"],
         "basic_info": {
             title: "Basic info",
             title_label: "(required)",
-            attributes: ["Name", "Language Preference", "Profile Picture"]
+            attributes: ["Name", "Email address", "Language Preference", "Profile Picture"]
         },
         "non_basic_scopes": {
-            "email": {
-                title: "Email address"
-            },
             "openid": {
                 title: "User ID",
                 desc: "Unique user ID for the app"
@@ -106,9 +100,6 @@ const IDP_SCOPE_DESC = {
             "user.phonenumbers.read": {
                 title: "Phone Number",
                 desc: "Personal phone numbers"
-            },
-            "userinfo.email": {
-                title: "Email address"
             },
             "userinfo.profile": {
                 title: "Public Profile",
@@ -163,33 +154,33 @@ const IDP_SCOPE_DESC = {
 
 const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 + "|https://(.*)\\.facebook\\.com/oauth(.*)"
++ "|https(:|%3A)(\/\/|%2F%2F)(.*).facebook.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
 + "|https://graph\\.facebook\\.com/(.*)"
 // Google
 + "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
++ "|https(:|%3A)(\/\/|%2F%2F)(.*).google.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
 + "|https://oauth2\\.googleapis\\.com/(.*)"
 + "|https://openidconnect\\.googleapis\\.com/(.*)"
 + "|https://googleapis\\.com/oauth(.*)"
 // Apple
-+ "|https://(.*)\\.apple\\.com/auth(.*)";
++ "|https://(.*)\\.apple\\.com/auth(.*)"
++ "|https(:|%3A)(\/\/|%2F%2F)(.*).apple.com(\/|%2F)auth(.*)[^'\"]+";
 
 var processed_idps = [];
 
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     // ask script to search for SSO logins
-    chrome.tabs.sendMessage(tabs[0].id, {msg: "searchSSO"}, function(response) {
-        //console.log(response.result);
-    });
+    chrome.tabs.sendMessage(tabs[0].id, {msg: "searchSSO"});
 });
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        const url = request.redirectUrl;
-        const regex = new RegExp(IDP_ENDPOINT_REGEX);
-        const idp = getProviderName(url);
-        // skip if idp has already been processed or if url is not idp
-        if (!processed_idps.includes(idp) && regex.test(url)) {
-            showResult(url);
-            processed_idps.push(idp);
+        if (request.msg === "SHOW_RESULT") {
+            showResult(request.redirectUrl);
+        }
+        if (request.msg === "QUERY_RESULT") {
+            const status = processed_idps.length > 0 ? true : false;
+            sendResponse({received_results: status});
         }
     }
 );
@@ -267,8 +258,15 @@ function getScopeContent(url) {
     return content;
 }
 
-async function showResult(url) {
+function showResult(url) {
     const idp = getProviderName(url);
+    const regex = new RegExp(IDP_ENDPOINT_REGEX);
+    
+    // skip if idp has already been processed or if url is not idp
+    if (processed_idps.includes(idp) || !regex.test(url)) {
+        return;
+    }
+    processed_idps.push(idp);
     
     // show idp info on a new card
     const header = newElement("card-header", idp);
@@ -297,7 +295,7 @@ function getProviderName(url) {
     if (str.includes("apple")) {
         return "Apple";
     }
-    return "";
+    return new URL(url).hostname;
 }
 
 function extractScopesFromUrl(url) {

@@ -11,13 +11,31 @@ const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 // Apple
 + "|https://(.*)\\.apple\\.com/auth(.*)";
 
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+    console.log(info.pageUrl);
+    const regex = new RegExp(IDP_ENDPOINT_REGEX);
+    if (regex.test(info.pageUrl)) {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+                msg: "SHOW_PERMISSIONS"
+            });
+        });
+    }
+});
+
+chrome.contextMenus.create({
+    id: "ctxMenuViewPermissions",
+    title: "View login permissions...",
+    contexts: ["all"],
+});
+
 chrome.webRequest.onBeforeRedirect.addListener(
     function(details) {
         const redirectUrl = details.redirectUrl;
         const regex = new RegExp(IDP_ENDPOINT_REGEX);
         if (regex.test(redirectUrl)) {
             // url is a match for idp
-            sendResult(redirectUrl);
+            sendResultToPopup(redirectUrl);
         } else {
             // retry request to url
             fetch(redirectUrl)
@@ -29,20 +47,20 @@ chrome.webRequest.onBeforeRedirect.addListener(
 );
 
 chrome.runtime.onMessage.addListener(
-    function(msg, sender, sendResponse) {
-        console.log(msg);
-        if (msg.type == "RETRY_REQUEST") {
-            checkUrlAndRetryIfNeeded(msg.url);
+    function(request, sender, sendResponse) {
+        console.log(request);
+        if (request.msg == "RETRY_REQUEST") {
+            checkUrlAndRetryIfNeeded(request.url);
         }
     }
 );
 
-function sendResult(redirectUrl) {
-    console.log(redirectUrl);
-    // send results to interface
-    chrome.runtime.sendMessage({"redirectUrl": redirectUrl}, function(response) {
-        console.log("result sent from background");
+function sendResultToPopup(redirectUrl) {
+    chrome.runtime.sendMessage({
+        msg: 'SHOW_RESULT',
+        redirectUrl: redirectUrl
     });
+    console.log(redirectUrl);
 }
 
 function checkUrlAndRetryIfNeeded(url) {
@@ -52,7 +70,6 @@ function checkUrlAndRetryIfNeeded(url) {
         return;
     } else {
         // retry request to url
-        fetch(url)
-            .then(response => console.log(response));
+        fetch(url).then(response => console.log(response));
     }
 }
