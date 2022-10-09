@@ -10,6 +10,7 @@
     "default_popup": "src/popup.html"
   },
   "permissions": [
+    "contextMenus",
     "webRequest",
     "http://*/*",
     "https://*/*"
@@ -22,5 +23,8 @@
         ],
         "js": ["src/js/contentscript.js"]
       }
+  ],
+  "web_accessible_resources": [
+    "/src/web_accessible_resources/*"
   ]
 }

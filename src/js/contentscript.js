@@ -46,8 +46,19 @@ chrome.runtime.onMessage.addListener(
         if (request.msg === "searchSSO") {
             ssoSearch();
         }
+        if (request.msg === "SHOW_PERMISSIONS") {
+            showIdPResult();
+        }
     }
 );
+
+function showIdPResult() {
+    const iframe = document.createElement("iframe");
+    iframe.src = chrome.extension.getURL("/src/web_accessible_resources/overlay.html");
+    console.log(iframe.src);
+    iframe.style.display = "block";
+    document.body.appendChild(iframe);
+}
 
 function idpLinkSearch() {
     let regex = new RegExp(IDP_ENDPOINT_REGEX);
@@ -121,7 +132,7 @@ async function makeRequestIfLinkIsFound(el) {
 /**
  * @returns string with XPath query for finding SSO elements
  */
-function getSSOSearchQuery() {
+ function getSSOSearchQuery() {
     let query = "";
     for (let xpath of SSO_LOGIN_XPATH) {
         // append xpath to query

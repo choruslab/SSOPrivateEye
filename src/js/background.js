@@ -11,6 +11,24 @@ const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 // Apple
 + "|https://(.*)\\.apple\\.com/auth(.*)";
 
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+    console.log(info.pageUrl);
+    const regex = new RegExp(IDP_ENDPOINT_REGEX);
+    if (regex.test(info.pageUrl)) {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+                msg: "SHOW_PERMISSIONS"
+            });
+        });
+    }
+});
+
+chrome.contextMenus.create({
+    id: "ctxMenuViewPermissions",
+    title: "View login permissions...",
+    contexts: ["all"],
+});
+
 chrome.webRequest.onBeforeRedirect.addListener(
     function(details) {
         const redirectUrl = details.redirectUrl;
