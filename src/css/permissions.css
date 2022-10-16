@@ -1,0 +1,73 @@
+.card-content-header {
+    font-size: 13px;
+    font-style: italic;
+    font-stretch: expanded;
+    margin-top: 0.5em;
+}
+
+.hr-after-basic-scopes {
+    border-bottom: 1px solid #bebebe;
+    margin: 0.5em 0 0 0;
+}
+
+.basic-block {
+    background-color: #d19999;
+}
+
+.nonbasic-block {
+    background-color: #80a5ca;
+}
+
+.scope-title {
+    display: block;
+    font-size: 1.17em;
+    margin-top: 1em;
+    font-weight: bold;
+}
+
+.scope-title-required {
+    display: inline-block;
+    font-size: 11px;
+    color: #FF0000;
+    padding-left: 5px;
+}
+
+.scope-desc {
+    font-size: 11px;
+    padding: 4px 0 0 0;
+}
+
+.column {
+    width: 100%;
+    display: flex;
+    padding: 0 10px;
+    margin-bottom: 10px;
+}
+
+.card {
+    text-align: left;
+    max-height: fit-content;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    white-space: initial;
+    min-width: 200px;
+    max-width: 400px;
+}
+
+.card-header {
+    color: #ffffff;
+    text-align: center;
+    font-size: 1rem;
+    background-color: #00264d;
+    padding: 10px;
+}
+
+.card-content {
+    margin-top: 0;
+    padding: 0 10px 10px;
+}
+
+.card-content > h4 {
+    margin-bottom: 3px;
+}

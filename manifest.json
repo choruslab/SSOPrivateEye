@@ -21,8 +21,8 @@
           "http://*/*",
           "https://*/*"
         ],
-        "css": ["src/css/popup.css"],
-        "js": ["src/js/identity-providers.js", "src/js/permissions-ui.js", "src/js/contentscript.js"]
+        "css": ["src/css/permissions.css"],
+        "js": ["src/js/identity-providers.js", "src/js/permissions.js", "src/js/contentscript.js"]
       }
   ]
 }
