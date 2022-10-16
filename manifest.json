@@ -22,7 +22,7 @@
           "https://*/*"
         ],
         "css": ["src/css/permissions.css"],
-        "js": ["src/js/identity-providers.js", "src/js/permissions.js", "src/js/contentscript.js"]
+        "js": ["src/js/identity-providers.js", "src/js/permissions.js", "src/js/contentscript.js", "src/js/contextmenu.js"]
       }
   ]
 }
