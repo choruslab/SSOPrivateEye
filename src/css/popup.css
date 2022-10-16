@@ -46,6 +46,14 @@ body {
     margin-bottom: 3px;
 }
 
+.basic-block {
+    background-color: #d19999;
+}
+
+.nonbasic-block {
+    background-color: #80a5ca;
+}
+
 .popup-header {
     display: inline-block;
 }
@@ -82,7 +90,6 @@ body {
 
 .scope-desc {
     font-size: 11px;
-    color: #545454;
     padding: 4px 0 0 0;
 }
 

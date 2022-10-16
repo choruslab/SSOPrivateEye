@@ -1,15 +1,14 @@
 "use strict";
 
-const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
-+ "|https://(.*)\\.facebook\\.com/oauth(.*)"
-+ "|https://graph\\.facebook\\.com/(.*)"
-// Google
-+ "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
-+ "|https://oauth2\\.googleapis\\.com/(.*)"
-+ "|https://openidconnect\\.googleapis\\.com/(.*)"
-+ "|https://googleapis\\.com/oauth(.*)"
-// Apple
-+ "|https://(.*)\\.apple\\.com/auth(.*)";
+importScripts("identity-providers.js");
+
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+        id: "ctxMenuViewPermissions",
+        title: "View login permissions...",
+        contexts: ["page"],
+    });
+});
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
     console.log(info.pageUrl);
@@ -21,12 +20,6 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             });
         });
     }
-});
-
-chrome.contextMenus.create({
-    id: "ctxMenuViewPermissions",
-    title: "View login permissions...",
-    contexts: ["all"],
 });
 
 chrome.webRequest.onBeforeRedirect.addListener(

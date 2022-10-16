@@ -25,20 +25,6 @@ const SSO_LOGIN_XPATH = [
     "//*[text()[contains(translate(., 'SIGNU', 'signu'), 'sign in using')]]"
 ];
 
-const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
-+ "|https://(.*)\\.facebook\\.com/oauth(.*)"
-+ "|https(:|%3A)(\/\/|%2F%2F)(.*).facebook.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
-+ "|https://graph\\.facebook\\.com/(.*)" 
-// Google
-+ "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
-+ "|https(:|%3A)(\/\/|%2F%2F)(.*).google.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
-+ "|https://oauth2\\.googleapis\\.com/(.*)"
-+ "|https://openidconnect\\.googleapis\\.com/(.*)"
-+ "|https://googleapis\\.com/oauth(.*)"
-// Apple
-+ "|https://(.*)\\.apple\\.com/auth(.*)"
-+ "|https(:|%3A)(\/\/|%2F%2F)(.*).apple.com(\/|%2F)auth(.*)[^'\"]+";
-
 var processedElements = new Set(); // to keep track of processed SSO matches
 
 chrome.runtime.onMessage.addListener(
@@ -53,11 +39,29 @@ chrome.runtime.onMessage.addListener(
 );
 
 function showIdPResult() {
-    const iframe = document.createElement("iframe");
-    iframe.src = chrome.extension.getURL("/src/web_accessible_resources/overlay.html");
-    console.log(iframe.src);
-    iframe.style.display = "block";
-    document.body.appendChild(iframe);
+    const card = newElement("card");
+    const p = document.createElement("p");
+    //TODO add a header indicating this is from SPEYE tool (same cue in right-click option icon)
+    p.textContent = "If you continue login, the following will be requested.";
+    card.appendChild(p);
+
+    // add a title to the card
+    const url = window.location.href;
+    const title = newElement("card-header", getIdPName(url));
+    card.appendChild(title);
+
+    // main content of the card
+    const content = newElement("card-content");
+    addContentHeader(content); // header to indicate the RP name
+    addContent(url, content); // show list of permissions
+    addOptoutNote(content); // footer note about permission opt-outs
+    card.appendChild(content);
+
+    const column = newElement("column");
+    column.appendChild(card);
+
+    column.style.position = "relative";
+    document.body.appendChild(column);
 }
 
 function idpLinkSearch() {
