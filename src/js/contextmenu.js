@@ -24,7 +24,6 @@ function showIdPResult() {
     const content = newElement("card-content");
     addContentHeader(content); // header to indicate the RP name
     addContent(url, content); // show list of permissions
-    addOptoutNote(content); // footer note about permission opt-outs
     card.appendChild(content);
 
     const column = newElement("column");

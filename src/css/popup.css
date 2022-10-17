@@ -6,7 +6,7 @@ body {
 
 .row {
     display: flex;
-    max-width: 700px;
+    max-width: 750px;
     padding: 10px;
     overflow: auto;
 }

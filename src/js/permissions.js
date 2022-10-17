@@ -21,7 +21,7 @@ function addContentHeader(content) {
         } else {
             text = new URL(url).hostname;
         }
-        text += " wishes to retrieve your ...";
+        text += " wishes to retrieve ...";
         header.append(text);
     }
     
@@ -35,10 +35,16 @@ function addContentHeader(content) {
     content.appendChild(header);
 }
 
-function addOptoutNote(content) {
-    const el = document.createElement("i");
-    el.textContent = "Items marked (required) cannot be opted-out";
-    content.appendChild(el);
+function addReqNote(idp, content) {
+    let note = "Following permissions are required:";
+    let div = newElement("note-required", note);
+    
+    if (idp === "Apple") {
+        note = "Following permissions can be anonymized during login:";
+        div = newElement("note-apple", note);
+    }
+    
+    content.appendChild(div);
 }
 
 function addContent(url, content) {
@@ -47,17 +53,18 @@ function addContent(url, content) {
 
     // heading for the content area
     content.appendChild(newElement("hr-after-basic-scopes"));
+
+    // add note about required permissions
+    addReqNote(idp, content);
  
     // basic info
-    const divBasic = newElement("basic-block");
+    let divBasic = newElement("basic-block");
+    if (idp === "Apple") {
+        divBasic = newElement("basic-block-apple");
+    }
     if (idp === "Google" || idp === "Facebook" || (idp === "Apple" && scope_values.includes("name"))) {
-        // (basic info is optional for Sign in with Apple)
         const basic_info = IDP_SCOPE_DESC[idp]["basic_info"];
         let title = newElement("scope-title", basic_info.title);
-        if (basic_info.hasOwnProperty("title_label")) {
-            // label to indicated required fields
-            title.appendChild(newElement("scope-title-required", basic_info.title_label));
-        }
         divBasic.appendChild(title);
         // individual attributes
         basic_info.attributes.forEach(attr => {
@@ -99,6 +106,15 @@ function addContent(url, content) {
             divNonbasic.appendChild(newElement("scope-title", val));
         }
     }
-    content.appendChild(divNonbasic);
+
+    if (counter > 1) {
+        // add note about optional permissions
+        const optNote = "Following permissions can be opted-out during login:";
+        const divOptNote = newElement("note-optional", optNote);
+        content.appendChild(divOptNote);
+
+        // add non-basic permissions
+        content.appendChild(divNonbasic);
+    }
 }
 

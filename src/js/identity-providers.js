@@ -103,7 +103,6 @@ const IDP_SCOPE_DESC = {
         "basic_scopes": ["public_profile", "email"],
         "basic_info": {
             title: "Basic info",
-            title_label: "(required)",
             attributes: ["Name", "Email address", "Profile Picture"]
         },
         "non_basic_scopes": {
@@ -165,7 +164,6 @@ const IDP_SCOPE_DESC = {
         "basic_scopes": ["profile", "email", "userinfo.email"],
         "basic_info": {
             title: "Basic info",
-            title_label: "(required)",
             attributes: ["Name", "Email address", "Language Preference", "Profile Picture"]
         },
         "non_basic_scopes": {
@@ -232,20 +230,13 @@ const IDP_SCOPE_DESC = {
         }
     },
     "Apple": {
-        "basic_scopes": ["name"],
+        "basic_scopes": ["name", "email", "openid"],
         "basic_info": {
             title: "Basic info",
-            attributes: ["Name (can be hidden during login)"]
+            attributes: ["Name", "Email address"]
         },
         "non_basic_scopes": {
-            "email": {
-                title: "Email address",
-                desc: "(can be hidden during login)"
-            },
-            "openid": {
-                title: "User ID",
-                desc: "Unique user ID for the app"
-            }
+            
         }
     }
 }

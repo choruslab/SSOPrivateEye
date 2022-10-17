@@ -30,10 +30,10 @@ function showResult(url) {
     processed_idps.push(idp);
 
     const card = newElement("card");
-    const p = document.createElement("p");
+    //const p = document.createElement("p");
     //TODO add a header indicating this is from SPEYE tool (same cue in right-click option icon)
-    p.textContent = "If you continue with Facebook, the following will be requested.";
-    card.appendChild(p);
+    //p.textContent = "If you continue with Facebook, the following will be requested.";
+    //card.appendChild(p);
 
     // add a title to the card
     const title = newElement("card-header", idp);
@@ -43,7 +43,6 @@ function showResult(url) {
     const content = newElement("card-content");
     addContentHeader(content); // header to indicate the RP name
     addContent(url, content); // show list of permissions
-    addOptoutNote(content); // footer note about permission opt-outs
     card.appendChild(content);
 
     const column = newElement("column");
