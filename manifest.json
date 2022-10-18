@@ -22,7 +22,13 @@
           "https://*/*"
         ],
         "css": ["src/css/permissions.css"],
-        "js": ["src/js/identity-providers.js", "src/js/permissions.js", "src/js/contentscript.js", "src/js/contextmenu.js"]
+        "js": [
+          "src/js/identity-providers.js",
+          "src/js/permissions.js",
+          "src/js/contentscript.js",
+          "src/js/contextmenu.js"
+        ],
+        "run_at": "document_idle"
       }
   ]
 }

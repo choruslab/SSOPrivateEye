@@ -27,6 +27,28 @@ const SSO_LOGIN_XPATH = [
 
 var processedElements = new Set(); // to keep track of processed SSO matches
 
+// show context menu option if this is an IdP login page
+showContextMenuOption();
+
+function showContextMenuOption() {
+    const url = window.location.href;
+    const regex = new RegExp(IDP_ENDPOINT_REGEX);
+    if (regex.test(url)) { // idp login page
+        // add banner area to the top
+        const divOption = newElement("option-banner");
+
+        // make a button to open permissions dialog
+        const divSpeye = newElement("speye-title", "[SPEYE]");
+        divSpeye.appendChild(newElement("view-permissions", "view login permissions..."));
+        divSpeye.onclick = function() {
+            showIdPResult(); // call context menu option
+        }
+        divOption.appendChild(divSpeye);
+        
+        document.body.appendChild(divOption);
+    }
+}
+
 chrome.runtime.onMessage.addListener(
     function(request, sender) {
         if (request.msg === "searchSSO") {

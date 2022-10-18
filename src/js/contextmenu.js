@@ -9,6 +9,12 @@ chrome.runtime.onMessage.addListener(
 );
 
 function showIdPResult() {
+    const url = window.location.href;
+    
+    const regex = new RegExp(IDP_ENDPOINT_REGEX);
+    if (!regex.test(url)) { // nothing to do
+        return;
+    }
 
     // overlay mask in the background
     const overlay = newElement("overlay");
@@ -16,13 +22,8 @@ function showIdPResult() {
     document.body.appendChild(overlay);
 
     const card = newElement("card");
-    // const p = document.createElement("p");
-    // //TODO add a header indicating this is from SPEYE tool (same cue in right-click option icon)
-    // p.textContent = "If you continue login, the following will be requested.";
-    // card.appendChild(p);
 
     // add a title to the card
-    const url = window.location.href;
     const title = newElement("card-header", getIdPName(url));
     card.appendChild(title);
 
@@ -44,7 +45,7 @@ function showIdPResult() {
 
     column.style.position = "sticky";
     column.style.bottom = "5px";
-    column.style.zIndex = "10";
+    column.style.zIndex = "10003";
     document.body.appendChild(column);
 
     // listeners for close event

@@ -11,7 +11,6 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-    console.log(info.pageUrl);
     const regex = new RegExp(IDP_ENDPOINT_REGEX);
     if (regex.test(info.pageUrl)) {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
