@@ -21,7 +21,7 @@ function addContentHeader(content) {
         } else {
             text = new URL(url).hostname;
         }
-        text += " wishes to retrieve ...";
+        text += " would request ...";
         header.append(text);
     }
     
@@ -36,11 +36,11 @@ function addContentHeader(content) {
 }
 
 function addReqNote(idp, content) {
-    let note = "Following permissions are required:";
+    let note = "... the following as required data:";
     let div = newElement("note-required", note);
     
     if (idp === "Apple") {
-        note = "Following permissions can be anonymized during login:";
+        note = "... the following data that could be anonymized during login:";
         div = newElement("note-apple", note);
     }
     
@@ -109,7 +109,7 @@ function addContent(url, content) {
 
     if (counter > 1) {
         // add note about optional permissions
-        const optNote = "Following permissions can be opted-out during login:";
+        const optNote = "and the following data that could be opted-out:";
         const divOptNote = newElement("note-optional", optNote);
         content.appendChild(divOptNote);
 

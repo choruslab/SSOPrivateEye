@@ -25,6 +25,7 @@ function showIdPResult() {
 
     // add a title to the card
     const title = newElement("card-header", getIdPName(url));
+    title.appendChild(newElement("card-header-speye", "[SPEYE]"));
     card.appendChild(title);
 
     // main content of the card
