@@ -10,7 +10,6 @@
     "default_popup": "src/popup.html#popup"
   },
   "permissions": [
-    "contextMenus",
     "webRequest",
     "http://*/*",
     "https://*/*"
@@ -25,8 +24,7 @@
         "js": [
           "src/js/identity-providers.js",
           "src/js/permissions.js",
-          "src/js/contentscript.js",
-          "src/js/contextmenu.js"
+          "src/js/contentscript.js"
         ],
         "run_at": "document_idle"
       }

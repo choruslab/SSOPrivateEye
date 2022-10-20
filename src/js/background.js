@@ -2,24 +2,6 @@
 
 importScripts("identity-providers.js");
 
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
-        id: "ctxMenuViewPermissions",
-        title: "View login permissions...",
-        contexts: ["page"],
-    });
-});
-
-chrome.contextMenus.onClicked.addListener(function(info, tab) {
-    const regex = new RegExp(IDP_ENDPOINT_REGEX);
-    if (regex.test(info.pageUrl)) {
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            chrome.tabs.sendMessage(tabs[0].id, {
-                msg: "SHOW_PERMISSIONS"
-            });
-        });
-    }
-});
 
 chrome.webRequest.onBeforeRedirect.addListener(
     function(details) {
