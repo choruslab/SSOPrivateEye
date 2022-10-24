@@ -98,6 +98,33 @@ function addReqNote(idp, content) {
     content.appendChild(div);
 }
 
+function addToggleButton(el, greyedout=false) {
+    let enabled = true; // default is on
+    const btn = newElement("toggle-button");
+    const tgl = newElement("toggle");
+    if (greyedout) { // cannot toggle
+        btn.style.background = "#d19999";
+        tgl.style.background = "#d19999";
+        btn.style.border = "1px black solid";
+    } else {
+        btn.onclick = function() {
+            if (enabled) { // turn off
+                btn.style.background = "grey";
+                tgl.style.background = "white";
+                tgl.style.transform = "translateX(0%)";
+                enabled = false;
+            } else { // turn on
+                btn.style.background = "";
+                tgl.style.background = "";
+                tgl.style.transform = "translateX(100%)";
+                enabled = true;
+            }
+        };
+    }
+    btn.appendChild(tgl);
+    el.appendChild(btn);
+}
+
 function addContent(url, content) {
     const idp = getIdPName(url);
     const scope_values = extractScopeFromUrl(url);
@@ -116,6 +143,8 @@ function addContent(url, content) {
     if (idp === "Google" || idp === "Facebook" || (idp === "Apple" && scope_values.includes("name"))) {
         const basic_info = IDP_SCOPE_DESC[idp]["basic_info"];
         let title = newElement("scope-title", basic_info.title);
+        // add opt-out toggle (greyedout)
+        addToggleButton(title, true);
         divBasic.appendChild(title);
         // individual attributes
         basic_info.attributes.forEach(attr => {
@@ -132,6 +161,8 @@ function addContent(url, content) {
         if (scope_values.length > 0 && scope_values.includes(key)) {
             const val = IDP_SCOPE_DESC[idp]["non_basic_scopes"][key];
             let title = newElement("scope-title", val.title);
+            // add opt-out toggle
+            addToggleButton(title);
             divNonbasic.appendChild(title);
 
             if (val.hasOwnProperty("desc")) { // optional description
