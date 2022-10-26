@@ -24,7 +24,8 @@ function getSubstringIfFound(str, key) {
 function getRPFromRedirectParam() {
     let rp = "This site";
     const params = new URLSearchParams(window.location.search);
-    
+
+    // first check in "redirect_uri"
     if (params.has("redirect_uri")) {
         const redirectUri = params.get("redirect_uri");
         try {
@@ -42,8 +43,24 @@ function getRPFromRedirectParam() {
             // remove unnecessary characters
             rp = rp.replace(/\//g, "");
         }
-        rp = rp.replace(/www./g, "");
+    } else if (params.has("next")) {
+        // sometimes the RP URL is nested inside the "next" parameter
+        const next = new URL(params.get("next")).searchParams;
+        let val = null;
+        if (next.has("redirect_uri")) {
+            val = next.get("redirect_uri");
+        }
+        if (next.has("domain")) {
+            val = next.get("domain");
+        }
+        // parse value into RP URL
+        try {
+            rp = new URL(val).hostname;
+        } catch {
+            rp = val;
+        }
     }
+    rp = rp.replace(/www./g, "");
     return rp;
 }
 

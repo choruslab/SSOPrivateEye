@@ -30,10 +30,6 @@ function showResult(url) {
     processed_idps.push(idp);
 
     const card = newElement("card");
-    //const p = document.createElement("p");
-    //TODO add a header indicating this is from SPEYE tool (same cue in right-click option icon)
-    //p.textContent = "If you continue with Facebook, the following will be requested.";
-    //card.appendChild(p);
 
     // add a title to the card
     const title = newElement("card-header", idp);

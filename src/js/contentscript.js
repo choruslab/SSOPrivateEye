@@ -39,7 +39,7 @@ function showContextMenuOption() {
 
         // make a button to open permissions dialog
         const divSpeye = newElement("speye-title", "[SPEYE]");
-        divSpeye.appendChild(newElement("view-permissions", "view login permissions..."));
+        divSpeye.appendChild(newElement("view-permissions", "view & opt-out login permissions..."));
         divSpeye.onclick = function() {
             showIdPResult(); // call context menu option
         }

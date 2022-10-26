@@ -86,15 +86,35 @@ function addContentHeader(content) {
     content.appendChild(header);
 }
 
-function addReqNote(idp, content) {
-    let note = "... the following as required data:";
-    let div = newElement("note-required", note);
+function addNote(idp, content, required) {
     
-    if (idp === "Apple") {
-        note = "... the following data that could be anonymized during login:";
-        div = newElement("note-apple", note);
+    function highlight(word) {
+        const t = newElement("span", word);
+        t.style.textDecoration = "underline";
+        t.style.fontWeight = "bold";
+        t.style.display = "inline-block";
+        return t;
     }
-    
+
+    let div = null;
+    if (idp === "Apple") {
+        // Apple permissions can always be anonymized
+        div = newElement("note-apple");
+        div.append("... the following data that could be ");
+        div.append(highlight("anonymized"));
+        div.append(" during login:");
+    } else if (required === true) {
+        // note about required permissions
+        div = newElement("note-required");
+        div.append("... the following as ");
+        div.append(highlight("required"));
+        div.append(" data:");
+    } else {
+        // note about opt-outable permissions
+        div = newElement("note-optional");
+        div.append("and the following data that could be ");
+        div.append(highlight("opted-out:"));
+    }
     content.appendChild(div);
 }
 
@@ -102,20 +122,18 @@ function addToggleButton(el, greyedout=false) {
     let enabled = true; // default is on
     const btn = newElement("toggle-button");
     const tgl = newElement("toggle");
-    if (greyedout) { // cannot toggle
-        btn.style.background = "#d19999";
-        tgl.style.background = "#d19999";
-        btn.style.border = "1px black solid";
+    
+    if (greyedout) { // disable toggle option
+        btn.style.background = "#ffb380";
+        tgl.style.background = "#f2f2f2";
     } else {
         btn.onclick = function() {
             if (enabled) { // turn off
                 btn.style.background = "grey";
-                tgl.style.background = "white";
                 tgl.style.transform = "translateX(0%)";
                 enabled = false;
             } else { // turn on
                 btn.style.background = "";
-                tgl.style.background = "";
                 tgl.style.transform = "translateX(100%)";
                 enabled = true;
             }
@@ -133,7 +151,7 @@ function addContent(url, content) {
     content.appendChild(newElement("hr-after-basic-scopes"));
 
     // add note about required permissions
-    addReqNote(idp, content);
+    addNote(idp, content, true);
  
     // basic info
     let divBasic = newElement("basic-block");
@@ -191,9 +209,7 @@ function addContent(url, content) {
 
     if (counter > 1) {
         // add note about optional permissions
-        const optNote = "and the following data that could be opted-out:";
-        const divOptNote = newElement("note-optional", optNote);
-        content.appendChild(divOptNote);
+        addNote(idp, content, false);
 
         // add non-basic permissions
         content.appendChild(divNonbasic);
