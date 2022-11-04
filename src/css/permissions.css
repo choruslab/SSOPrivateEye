@@ -41,7 +41,7 @@
 .scope-desc {
     font-size: 11px;
     padding: 4px 0 0 0;
-    margin-right: 40px;
+    margin-right: 70px;
 }
 
 .column {
@@ -167,8 +167,9 @@
 .toggle-button {
     display: flex;
     float: right;
-    width: 31px;
-    max-height: 15px;
+    width: 50px;
+    height: 26px;
+    cursor: pointer;
     border-radius: 34px;
     background-color: #ff944d;
     align-items: center;
@@ -178,9 +179,16 @@
 
 .toggle {
     display: flex;
-    width: 15px;
-    height: 15px;
+    width: 24px;
+    height: 24px;
     border-radius: 100%;
+    line-height: 24px;
+    color: #ff944d;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    user-select: none;
+    justify-content: center;
     transition: 0.4s;
     transform: translateX(100%);
     background-color: white;

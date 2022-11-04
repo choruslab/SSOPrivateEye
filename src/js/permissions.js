@@ -113,7 +113,8 @@ function addNote(idp, content, required) {
         // note about opt-outable permissions
         div = newElement("note-optional");
         div.append("and the following data that could be ");
-        div.append(highlight("opted-out:"));
+        div.append(highlight("opted-out"));
+        div.append(" (use toggle below):");
     }
     content.appendChild(div);
 }
@@ -121,20 +122,24 @@ function addNote(idp, content, required) {
 function addToggleButton(el, greyedout=false) {
     let enabled = true; // default is on
     const btn = newElement("toggle-button");
-    const tgl = newElement("toggle");
+    const tgl = newElement("toggle", "ON");
     
     if (greyedout) { // disable toggle option
-        btn.style.background = "#ffb380";
-        tgl.style.background = "#f2f2f2";
+        btn.style.opacity = "0.55";
+        btn.style.cursor = "default";
     } else {
         btn.onclick = function() {
             if (enabled) { // turn off
                 btn.style.background = "grey";
                 tgl.style.transform = "translateX(0%)";
+                tgl.style.color = "grey";
+                tgl.innerText = "OFF";
                 enabled = false;
             } else { // turn on
                 btn.style.background = "";
                 tgl.style.transform = "translateX(100%)";
+                tgl.style.color = "";
+                tgl.innerText = "ON";
                 enabled = true;
             }
         };
