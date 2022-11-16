@@ -10,6 +10,10 @@ function newElement(classname, text=undefined) {
     return el;
 }
 
+function isPopup() {
+    return location.hash == "#popup";
+}
+
 function showIdPResult() {
     const url = window.location.href;
     const regex = new RegExp(IDP_ENDPOINT_REGEX);
@@ -76,7 +80,7 @@ function addContentHeader(content) {
         header.append(text);
     }
     
-    if (location.hash == "#popup") {
+    if (isPopup()) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             fill(tabs[0].url);
         });
@@ -114,12 +118,19 @@ function addNote(idp, content, required) {
         div = newElement("note-optional");
         div.append("and the following data that could be ");
         div.append(highlight("opted-out"));
-        div.append(" (use toggle below):");
+        if (!isPopup()) {
+            div.append(" (use toggle below)");
+        }
+        div.append(":");
     }
     content.appendChild(div);
 }
 
 function addToggleButton(el, greyedout=false) {
+    if (isPopup()) {
+        // show toggle only in idp page
+        return;
+    }
     let enabled = true; // default is on
     const btn = newElement("toggle-button");
     const tgl = newElement("toggle", "ON");

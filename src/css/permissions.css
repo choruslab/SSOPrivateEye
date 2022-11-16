@@ -41,7 +41,6 @@
 .scope-desc {
     font-size: 11px;
     padding: 4px 0 0 0;
-    margin-right: 70px;
 }
 
 .column {
@@ -169,6 +168,7 @@
     float: right;
     width: 50px;
     height: 26px;
+    margin-left: 70px;
     cursor: pointer;
     border-radius: 34px;
     background-color: #ff944d;
