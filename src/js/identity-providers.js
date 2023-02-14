@@ -184,6 +184,9 @@ const IDP_SCOPE_DESC = {
             attributes: ["Name", "Email address", "Language Preference", "Profile Picture"]
         },
         "non_basic_scopes": {
+        
+        },
+        "required_scopes": {
             "openid": {
                 title: "User ID",
                 desc: "Unique user ID for the app"

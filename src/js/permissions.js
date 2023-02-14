@@ -1,5 +1,7 @@
 "use strict";
 
+var optOutUrl = window.location.href;
+
 function newElement(classname, text=undefined) {
     const el = document.createElement("div");
     el.classList.add(classname);
@@ -79,7 +81,7 @@ function addContentHeader(content) {
         text += " would request ...";
         header.append(text);
     }
-    
+
     if (isPopup()) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             fill(tabs[0].url);
@@ -126,7 +128,26 @@ function addNote(idp, content, required) {
     content.appendChild(div);
 }
 
-function addToggleButton(el, greyedout=false) {
+function getUrlAfterOptOut(paramToRemove) {
+    let decoded_url = new URL(decodeURI(optOutUrl));
+    let cur_params = decoded_url.searchParams;
+    let cur_next = cur_params.get("next");
+    console.log(cur_next);
+    if (cur_next) {
+        let next_url = new URL(cur_next);
+        let next_params = next_url.searchParams;
+        let cur_scope = next_params.get("scope");
+        console.log(cur_scope);
+        let new_scope = cur_scope.split(",").filter(e => e !== paramToRemove).join(",");
+        console.log(new_scope);
+        next_url.searchParams.set("scope", new_scope);
+        decoded_url.searchParams.set("next", next_url.toString());
+    }
+    optOutUrl = decoded_url.toString();
+    window.location.href = optOutUrl;
+}
+
+function addToggleButton(el, scope_param, greyedout=false) {
     if (isPopup()) {
         // show toggle only in idp page
         return;
@@ -146,6 +167,7 @@ function addToggleButton(el, greyedout=false) {
                 tgl.style.color = "grey";
                 tgl.innerText = "OFF";
                 enabled = false;
+                //getUrlAfterOptOut(scope_param);
             } else { // turn on
                 btn.style.background = "";
                 tgl.style.transform = "translateX(100%)";
@@ -178,15 +200,34 @@ function addContent(url, content) {
         const basic_info = IDP_SCOPE_DESC[idp]["basic_info"];
         let title = newElement("scope-title", basic_info.title);
         // add opt-out toggle (greyedout)
-        addToggleButton(title, true);
+        addToggleButton(title, "basic_info", true);
         divBasic.appendChild(title);
         // individual attributes
         basic_info.attributes.forEach(attr => {
             divBasic.appendChild(newElement("scope-desc", attr));
         });
-        divBasic.appendChild(newElement("hr-after-basic-scopes"));
+        //divBasic.appendChild(newElement("hr-after-basic-scopes"));
+    }
+    if (idp === "Google") {
+        for (var key of Object.keys(IDP_SCOPE_DESC[idp]["required_scopes"])) {
+            if (scope_values.length > 0 && scope_values.includes(key)) {
+                const val = IDP_SCOPE_DESC[idp]["required_scopes"][key];
+                let title = newElement("scope-title", val.title);
+                // add opt-out toggle
+                addToggleButton(title, key, true);
+                divBasic.appendChild(title);
+    
+                if (val.hasOwnProperty("desc")) { // optional description
+                    divBasic.appendChild(newElement("scope-desc", val.desc));
+                }
+            }
+        }
     }
     content.appendChild(divBasic);
+    if (idp === "Google") {
+        return;
+    }
+    //content.appendChild(newElement("hr-after-basic-scopes"));
 
     // non-basic info
     let counter = 1;
@@ -196,16 +237,16 @@ function addContent(url, content) {
             const val = IDP_SCOPE_DESC[idp]["non_basic_scopes"][key];
             let title = newElement("scope-title", val.title);
             // add opt-out toggle
-            addToggleButton(title);
+            addToggleButton(title, key, false);
             divNonbasic.appendChild(title);
 
             if (val.hasOwnProperty("desc")) { // optional description
                 divNonbasic.appendChild(newElement("scope-desc", val.desc));
             }
             
-            if (counter < scope_values.length) {
-                divNonbasic.appendChild(newElement("hr-after-basic-scopes"));
-            }
+            // if (counter < scope_values.length) {
+            //     divNonbasic.appendChild(newElement("hr-after-basic-scopes"));
+            // }
             counter++;
         }
     }

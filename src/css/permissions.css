@@ -11,17 +11,17 @@
 }
 
 .basic-block {
-    padding: 0.75em 0.75em 0 0.75em;
+    padding: 0.25em 0.75em 0.75em 0.75em;
     background-color: #be8ed6;
 }
 
 .basic-block-apple {
-    padding: 0.75em 0.75em 0 0.75em;
+    padding: 0.25em 0.75em 0.75em 0.75em;
     background-color: #68a868;
 }
 
 .nonbasic-block {
-    padding: 0.75em 0.75em 0 0.75em;
+    padding: 0.25em 0.75em 0.75em 0.75em;
     background-color: #80a5ca;
 }
 
@@ -29,6 +29,7 @@
     display: block;
     font-size: 1.17em;
     font-weight: bold;
+    padding-top: 6px;
 }
 
 .scope-title-required {
@@ -40,7 +41,7 @@
 
 .scope-desc {
     font-size: 11px;
-    padding: 4px 0 0 0;
+    padding: 2px 0 0 0;
 }
 
 .column {
@@ -58,7 +59,7 @@
     flex-direction: column;
     white-space: initial;
     min-width: 215px;
-    max-width: 400px;
+    max-width: 310px;
     background-color: white;
 }
 
