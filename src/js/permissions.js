@@ -5,8 +5,7 @@ var optOutUrl = window.location.href;
 function newElement(classname, text=undefined) {
     const el = document.createElement("div");
     el.classList.add(classname);
-    // (optional) add text to element
-    if (typeof text !== 'undefined') {
+    if (typeof text !== 'undefined') { // optional
         el.append(text);
     }
     return el;
@@ -23,25 +22,25 @@ function showIdPResult() {
         return;
     }
 
-    // overlay mask in the background
+    // mask the background
     const overlay = newElement("overlay");
     overlay.style.display = "block";
     document.body.appendChild(overlay);
 
     const card = newElement("card");
 
-    // add a title to the card
+    // card title
     const title = newElement("card-header", getIdPName(url));
     title.appendChild(newElement("card-header-speye", "[SPEYE]"));
     card.appendChild(title);
 
-    // main content of the card
+    // main content
     const content = newElement("card-content");
-    addContentHeader(content); // header to indicate the RP name
-    addContent(url, content); // show list of permissions
+    addContentHeader(content); // header with RP name
+    addContent(url, content); // permissions list
     card.appendChild(content);
 
-    // add close option
+    // close option
     const close = newElement("close-x", "x");
     const cardWithClose = newElement("full-card");
 
@@ -56,7 +55,7 @@ function showIdPResult() {
     column.style.zIndex = "10003";
     document.body.appendChild(column);
 
-    // listeners for close event
+    // close events
     close.onclick = function() {
         overlay.style.display = "none";
         column.style.display = "none";
@@ -128,6 +127,7 @@ function addNote(idp, content, required) {
     content.appendChild(div);
 }
 
+// TODO WIP
 function getUrlAfterOptOut(paramToRemove) {
     let decoded_url = new URL(decodeURI(optOutUrl));
     let cur_params = decoded_url.searchParams;
@@ -181,6 +181,7 @@ function addToggleButton(el, scope_param, greyedout=false) {
     el.appendChild(btn);
 }
 
+// TODO refactor
 function addContent(url, content) {
     const idp = getIdPName(url);
     const scope_values = extractScopeFromUrl(url);
