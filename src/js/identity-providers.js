@@ -25,26 +25,25 @@ function getRPFromRedirectParam() {
     let rp = "This site";
     const params = new URLSearchParams(window.location.search);
 
-    // first check in "redirect_uri"
     if (params.has("redirect_uri")) {
         const redirectUri = params.get("redirect_uri");
         try {
-            // first attempt to parse url
+            // try url parser
             const url = getSubstringIfFound(redirectUri, "http");
             rp = new URL(url).hostname;
         } catch {
-            // stick with str
+            // use strs
             const url = getSubstringIfFound(redirectUri, "http").substring(5);
 
-            // remove trailing parameters if any
+            // remove trailing parameters
             if (url.includes("?")) {
                 rp = url.substring(0, url.indexOf("?"));
             }
-            // remove unnecessary characters
+            // remove unwanted characters
             rp = rp.replace(/\//g, "");
         }
     } else if (params.has("next")) {
-        // sometimes the RP URL is nested inside the "next" parameter
+        // sometimes the RP URL is nested within the "next" parameter
         const next = new URL(params.get("next")).searchParams;
         let val = null;
         if (next.has("redirect_uri")) {
@@ -53,7 +52,6 @@ function getRPFromRedirectParam() {
         if (next.has("domain")) {
             val = next.get("domain");
         }
-        // parse value into RP URL
         try {
             rp = new URL(val).hostname;
         } catch {
@@ -70,6 +68,7 @@ function extractScopeFromUrl(url) {
     if (!str.includes("scope")) {
         return []; 
     }
+    //TODO use url parser instead
     str = str.replace("scope%3D", "scope=");
     
     // substr following scope=

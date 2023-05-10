@@ -1,7 +1,7 @@
 "use strict";
 
 const SSO_LOGIN_XPATH = [
-    // TRAINING SET PATTERNS 
+    // SET1
     // match any attribute or text node containing string
     "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'sign in with')]]",
     "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'signin with')]]",
@@ -12,45 +12,41 @@ const SSO_LOGIN_XPATH = [
     "//*[text()[contains(translate(., 'ONEFTHSPI', 'onefthspi'), 'one of these options')]]",
     "//*[text()[contains(translate(., 'WAYSTOIGN', 'waystoign'), 'ways to sign in')]]",
     "//*[text()[contains(translate(., 'LOGINVA', 'loginva'), 'login via')]]",
-    // only match buttons for the more-general strings
+    // more-general strings
     "//button[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
     "//span[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
     "//button[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
     "//span[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
 
-    // EXTRA PATTERNS REQUIRED FOR TESTING SET
+    // SET2
     "//*[@data-provider]",
     "//*[text()[contains(., 'Or Use')]]",
     "//*[@*[contains(., 'login-with-')]]",
     "//*[text()[contains(translate(., 'SIGNU', 'signu'), 'sign in using')]]"
 ];
 
-var processedElements = new Set(); // to keep track of processed SSO matches
+var processedElements = new Set();
 
-// show context menu option if this is an IdP login page
 showContextMenuOption();
 
 function showContextMenuOption() {
     const url = window.location.href;
     const regex = new RegExp(IDP_ENDPOINT_REGEX);
     if (regex.test(url)) { // idp login page
-        // add banner area to the top
         const divOption = newElement("option-banner");
-
-        // make a button to open permissions dialog
         const divSpeye = newElement("speye-title", "[SPEYE]");
         divSpeye.appendChild(newElement("view-permissions", "view & opt-out login permissions..."));
         divSpeye.onclick = function() {
-            showIdPResult(); // call context menu option
+            showIdPResult();
         }
         divOption.appendChild(divSpeye);
-        
+
         document.body.appendChild(divOption);
     }
 }
 
 chrome.runtime.onMessage.addListener(
-    function(request, sender) {
+    function(request) {
         if (request.msg === "searchSSO") {
             ssoSearch();
         }
@@ -96,17 +92,15 @@ function extractLink(attr) {
 }
 
 async function makeRequestIfLinkIsFound(el) {
-    // check if we have processed this element already
     if (processedElements.has(el)) {
+        // already handled
         return Promise.resolve();
     }
     
-    // mark el as processed before initiating a request
     processedElements.add(el);
 
     // check if element contains sso link
     if (el.hasAttribute("href")) {
-        console.log(el);
         const link = el.getAttribute("href");
         return sendServerRequest(link);
     }
@@ -126,15 +120,11 @@ async function makeRequestIfLinkIsFound(el) {
     return Promise.resolve();
 }
 
-/**
- * @returns string with XPath query for finding SSO elements
- */
  function getSSOSearchQuery() {
     let query = "";
     for (let xpath of SSO_LOGIN_XPATH) {
-        // append xpath to query
-        if (query.length > 0) { // include OR if query is non-empty
-            query += "|";
+        if (query.length > 0) {
+            query += "|"; // OR
         }
         query += xpath;
     }
@@ -161,10 +151,9 @@ async function rpLinkSearch() {
 
     // find matches and make sso requests
     const scan = async height => {
-        console.log("Searching at height " + height);
+        console.log("height: " + height);
         const matches = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
         
-        // return immediately if there are no matches
         if (matches.snapshotLength < 1) {
             console.log("no matches found");
             return;
@@ -176,7 +165,6 @@ async function rpLinkSearch() {
                 // move onto next match
                 continue;
             }
-            console.log(match);
 
             // prepare root node for search tree
             let root = match;
@@ -190,9 +178,9 @@ async function rpLinkSearch() {
             }
 
             // search tree for sso links
-            let children = [root];
-            appendChildren(root, children);
-            for (let chld of children) {
+            let chldNodes = [root];
+            appendChildren(root, chldNodes);
+            for (let chld of chldNodes) {
                 await makeRequestIfLinkIsFound(chld);
             }
         }
@@ -210,43 +198,41 @@ async function rpLinkSearch() {
 }
 
 function ssoSearch() {
-    // reset processed list
     processedElements = new Set();
 
-    // find and send idp links in current page
+    // find idp links
     idpLinkSearch();
 
-    // find and make requests to sso links in current page
+    // send requests to sso links
     rpLinkSearch();
 }
 
 async function submitServerForm(el) {
-    // parameters set by the current choice
     const param = el.getAttribute("name");
     const value = el.getAttribute("value");
 
-    // find closest parent who is a form
+    // find closest parent form
     let form = el;
     while (form.parentElement != null && form.tagName != "FORM") {
         form = form.parentElement;
     }
-    if (form === null || form.tagName === "HTML") return; // no form found
+    if (form === null || form.tagName === "HTML") return; // no form was found
     
-    // form attributes
+    // attributes
     const method = form.getAttribute("method");
     const path = form.getAttribute("action");
-    if (path === null || method === null) return;
+    if (path === null || method === null) return; // nowhere to submit form
     
-    // set form values
+    // copy data
     let formData = new FormData(form);
     if (param != null && value != null) {
         formData.append(param, value);
     }
-    // add any other hidden parameters
+    // hidden parameters
     for (let i = 0; i < el.children.length; i++) {
-        const child = el.children[i];
-        if (child.tagName == "INPUT" && child.getAttribute("type") == "hidden") {
-            formData.append(child.getAttribute("name"), child.getAttribute("value"));
+        const chld = el.children[i];
+        if (chld.tagName == "INPUT" && chld.getAttribute("type") == "hidden") {
+            formData.append(chld.getAttribute("name"), chld.getAttribute("value"));
         }
     }
     
@@ -258,9 +244,8 @@ async function submitServerForm(el) {
 }
 
 async function sendServerRequest(link) {
-
     if (typeof link === "undefined") {
-        return Promise.resolve(); // nothing to do
+        return Promise.resolve();
     }
 
     const url = new URL(link, window.location.href);

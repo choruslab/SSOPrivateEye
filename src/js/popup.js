@@ -3,7 +3,7 @@
 var processed_idps = [];
 
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    // ask script to search for SSO logins
+    // script search for SSO logins
     chrome.tabs.sendMessage(tabs[0].id, {msg: "searchSSO"});
 });
 
@@ -23,19 +23,19 @@ function showResult(url) {
     const idp = getIdPName(url);
     const regex = new RegExp(IDP_ENDPOINT_REGEX);
     
-    // skip if idp has already been processed or if url is not idp
     if (processed_idps.includes(idp) || !regex.test(url)) {
+        // already handled or url is not idp
         return;
     }
     processed_idps.push(idp);
 
     const card = newElement("card");
 
-    // add a title to the card
+    // card title
     const title = newElement("card-header", idp);
     card.appendChild(title);
 
-    // main content of the card
+    // main content
     const content = newElement("card-content");
     addContentHeader(content); // header to indicate the RP name
     addContent(url, content); // show list of permissions
