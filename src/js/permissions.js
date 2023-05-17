@@ -197,7 +197,7 @@ function addContent(url, content) {
     if (idp === "Apple") {
         divBasic = newElement("basic-block-apple");
     }
-    if (idp === "Google" || idp === "Facebook" || (idp === "Apple" && scope_values.includes("name"))) {
+    if (idp === "Google" || idp === "Facebook" || (idp === "Apple" && scope_values.includes("email"))) {
         const basic_info = IDP_SCOPE_DESC[idp]["basic_info"];
         let title = newElement("scope-title", basic_info.title);
         // add opt-out toggle (greyedout)

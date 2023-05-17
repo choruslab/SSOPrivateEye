@@ -2,32 +2,85 @@
 
 const SSO_LOGIN_XPATH = [
     // SET1
-    // match any attribute or text node containing string
-    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'sign in with')]]",
+    // Sign in with...
+    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'sign in with')]]", // matches any attribute or text node
     "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'signin with')]]",
-    "//*[(@*|text())[contains(translate(., 'CONTINUEWH', 'continuewh'), 'continue with')]]",
-    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'log in with')]]",
-    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'login with')]]",
-    // match strings that are typically only in text nodes
-    "//*[text()[contains(translate(., 'ONEFTHSPI', 'onefthspi'), 'one of these options')]]",
-    "//*[text()[contains(translate(., 'WAYSTOIGN', 'waystoign'), 'ways to sign in')]]",
-    "//*[text()[contains(translate(., 'LOGINVA', 'loginva'), 'login via')]]",
-    // more-general strings
+    "//*[(@*|text())[contains(translate(., 'SIGNU', 'signu'), 'sign in using')]]",
+    "//*[(@*|text())[contains(translate(., 'SIGNU', 'signu'), 'signin using')]]",
+    // general strings but more specific selectors (less false positives and also improves performance)
     "//button[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
     "//span[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
     "//button[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
     "//span[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
 
+    // Log in with...
+    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'log in with')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'login with')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINUS', 'loginus'), 'log in using')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINVA', 'loginva'), 'login via')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINUS', 'loginus'), 'login using')]]",
+    // specific selectors
+    "//button[text()[contains(translate(., 'LOGIN', 'login'), 'login')]]",
+    "//span[text()[contains(translate(., 'LOGIN', 'login'), 'login')]]",
+    "//button[text()[contains(translate(., 'LOGIN', 'login'), 'log in')]]",
+    "//span[text()[contains(translate(., 'LOGIN', 'login'), 'log in')]]",
+    "//button[text()[contains(translate(., 'LOGN', 'logn'), 'log on')]]",
+    "//span[text()[contains(translate(., 'LOGN', 'logn'), 'log on')]]",
+    "//button[text()[contains(translate(., 'LOGN', 'logn'), 'logon')]]",
+    "//span[text()[contains(translate(., 'LOGN', 'logn'), 'logon')]]",
+
+    // Continue with...
+    "//*[(@*|text())[contains(translate(., 'CONTIUEWH', 'contiuewh'), 'continue with')]]",
+    "//*[(@*|text())[contains(translate(., 'CONTIUESG', 'contiuesg'), 'continue using')]]",
+    "//*[(@*|text())[contains(translate(., 'CONTIUEVA', 'contiueva'), 'continue via')]]",
+
+    // less popular strings
+    "//*[(@*|text())[contains(translate(., 'CONETWIH', 'conetwih'), 'connect with')]]",
+    "//*[(@*|text())[contains(translate(., 'CONETUSIG', 'conetusig'), 'connect using')]]",
+    "//*[(@*|text())[contains(translate(., 'CONETHRUG', 'conethrug'), 'connect through')]]",
+
+    "//*[(@*|text())[contains(translate(., 'ACESWITH', 'aceswith'), 'access with')]]",
+    "//*[(@*|text())[contains(translate(., 'ACESUING', 'acesuing'), 'access using')]]",
+    "//*[(@*|text())[contains(translate(., 'ACESTHROUG', 'acesthroug'), 'access through')]]",
+
+    "//*[(@*|text())[contains(translate(., 'AUTHENICW', 'authenicw'), 'authenticate with')]]",
+    "//*[(@*|text())[contains(translate(., 'AUTHENICSG', 'authenicsg'), 'authenticate using')]]",
+    "//*[(@*|text())[contains(translate(., 'AUTHENICROG', 'authenicrog'), 'authenticate through')]]",
+
+    "//*[(@*|text())[contains(translate(., 'IDENTFYWH', 'identfywh'), 'identify with')]]",
+    "//*[(@*|text())[contains(translate(., 'IDENTFYUSG', 'identfyusg'), 'identify using')]]",
+    "//*[(@*|text())[contains(translate(., 'IDENTFYHROUG', 'identfyhroug'), 'identify through')]]",
+
+    "//*[(@*|text())[contains(translate(., 'JOINWTH', 'joinwth'), 'join with')]]",
+    "//*[(@*|text())[contains(translate(., 'JOINUSG', 'joinusg'), 'join using')]]",
+    "//*[(@*|text())[contains(translate(., 'JOINTHRUG', 'jointhrug'), 'join through')]]",
+
+    "//*[(@*|text())[contains(translate(., 'ENTRWIH', 'entrwih'), 'enter with')]]",
+    "//*[(@*|text())[contains(translate(., 'ENTRUSIG', 'entrusig'), 'enter using')]]",
+    "//*[(@*|text())[contains(translate(., 'ACESOUNTWIH', 'acesountwih'), 'access account with')]]",
+    "//*[(@*|text())[contains(translate(., 'ACESOUNTIG', 'acesountig'), 'access account using')]]",
+    "//*[(@*|text())[contains(translate(., 'CHEKINWTH', 'chekinwth'), 'check in with')]]",
+    "//*[(@*|text())[contains(translate(., 'CHEKINUSG', 'chekinusg'), 'check in using')]]",
+    "//*[(@*|text())[contains(translate(., 'GAINETRYWH', 'gainetrywh'), 'gain entry with')]]",
+    "//*[(@*|text())[contains(translate(., 'GAINETRYUS', 'gainetryus'), 'gain entry using')]]",
+    "//*[(@*|text())[contains(translate(., 'LINKWTH', 'linkwth'), 'link with')]]",
+
+
     // SET2
-    "//*[@data-provider]",
-    "//*[text()[contains(., 'Or Use')]]",
-    "//*[@*[contains(., 'login-with-')]]",
-    "//*[text()[contains(translate(., 'SIGNU', 'signu'), 'sign in using')]]"
+    //"//*[@data-provider]",
+    //"//*[text()[contains(., 'Or Use')]]", // theatlantic.com
+    //"//*[@*[contains(., 'login-with-')]]"
+    //"//*[text()[contains(translate(., 'SIGNU', 'signu'), 'sign in using')]]"
+    //"//*[(@*|text())[contains(translate(., 'ONEFTHSPI', 'onefthspi'), 'one of these options')]]",
+    //"//*[(@*|text())[contains(translate(., 'WAYSTOIGN', 'waystoign'), 'ways to sign in')]]",
+
 ];
 
 var processedElements = new Set();
 
 showContextMenuOption();
+
+let start = performance.now();
 
 function showContextMenuOption() {
     const url = window.location.href;
@@ -48,6 +101,7 @@ function showContextMenuOption() {
 chrome.runtime.onMessage.addListener(
     function(request) {
         if (request.msg === "searchSSO") {
+            start = performance.now();
             ssoSearch();
         }
     }
@@ -83,6 +137,8 @@ function sendResultToBackground(url) {
         msg: 'RETRY_REQUEST',
         url: url
     });
+    let end = performance.now();
+    console.log("Full script took " + (end - start) + " ms");
 }
 
 function extractLink(attr) {
@@ -96,7 +152,7 @@ async function makeRequestIfLinkIsFound(el) {
         // already handled
         return Promise.resolve();
     }
-    
+    console.log(el);
     processedElements.add(el);
 
     // check if element contains sso link
@@ -152,8 +208,11 @@ async function rpLinkSearch() {
     // find matches and make sso requests
     const scan = async height => {
         console.log("height: " + height);
+        let search_start = performance.now();
         const matches = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-        
+        let search_end = performance.now();
+        console.log("SSO search took " + (search_end - search_start) + " ms");
+
         if (matches.snapshotLength < 1) {
             console.log("no matches found");
             return;
@@ -251,7 +310,7 @@ async function sendServerRequest(link) {
     const url = new URL(link, window.location.href);
 
     // check url protocol
-    if (!url.protocol.startsWith("http")) {
+    if (!url.protocol.startsWith("https")) {
         return Promise.resolve();
     }
 

@@ -104,6 +104,7 @@ const IDP_ENDPOINT_REGEX = "https://(.*)\\.facebook\\.com/login(.*)"
 + "|https://(.*)\\.facebook\\.com/oauth(.*)"
 + "|https(:|%3A)(\/\/|%2F%2F)(.*).facebook.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
 + "|https://graph\\.facebook\\.com/(.*)"
++ "|https://(.*)\\.facebook\\.com/(.*)login_button.php(.*)"
 // Google
 + "|https://(.*)\\.google\\.com/(.*)/oauth(.*)"
 + "|https(:|%3A)(\/\/|%2F%2F)(.*).google.com(\/|%2F)(.*)(\/|%2F)oauth(.*)[^'\"]+"
