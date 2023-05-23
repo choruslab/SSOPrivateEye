@@ -1,42 +1,32 @@
 "use strict";
 
 const SSO_LOGIN_XPATH = [
-    // SET1
-    // Sign in with...
-    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'sign in with')]]", // matches any attribute or text node
+    // training set (21 sites)
+    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'sign in with')]]",
+    "//button[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
+    "//*[(@*|text())[contains(translate(., 'CONTIUEWH', 'contiuewh'), 'continue with')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'log in with')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'login with')]]",
+    "//*[(@*|text())[contains(translate(., 'LOGINVA', 'loginva'), 'login via')]]",
+    "//*[(@*|text())[contains(translate(., 'CONETUSIG', 'conetusig'), 'connect using')]]",
+    "//*[(@*|text())[contains(translate(., 'ORUSE', 'oruse'), 'or use')]]",
+
+
+    // variations of the above strings
+    "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'sign in with')]]",
     "//*[(@*|text())[contains(translate(., 'SIGNWTH', 'signwth'), 'signin with')]]",
     "//*[(@*|text())[contains(translate(., 'SIGNU', 'signu'), 'sign in using')]]",
     "//*[(@*|text())[contains(translate(., 'SIGNU', 'signu'), 'signin using')]]",
-    // general strings but more specific selectors (less false positives and also improves performance)
-    "//button[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
-    "//span[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
-    "//button[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
-    "//span[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
 
-    // Log in with...
-    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'log in with')]]",
-    "//*[(@*|text())[contains(translate(., 'LOGINWTH', 'loginwth'), 'login with')]]",
     "//*[(@*|text())[contains(translate(., 'LOGINUS', 'loginus'), 'log in using')]]",
-    "//*[(@*|text())[contains(translate(., 'LOGINVA', 'loginva'), 'login via')]]",
     "//*[(@*|text())[contains(translate(., 'LOGINUS', 'loginus'), 'login using')]]",
-    // specific selectors
-    "//button[text()[contains(translate(., 'LOGIN', 'login'), 'login')]]",
-    "//span[text()[contains(translate(., 'LOGIN', 'login'), 'login')]]",
-    "//button[text()[contains(translate(., 'LOGIN', 'login'), 'log in')]]",
-    "//span[text()[contains(translate(., 'LOGIN', 'login'), 'log in')]]",
-    "//button[text()[contains(translate(., 'LOGN', 'logn'), 'log on')]]",
-    "//span[text()[contains(translate(., 'LOGN', 'logn'), 'log on')]]",
-    "//button[text()[contains(translate(., 'LOGN', 'logn'), 'logon')]]",
-    "//span[text()[contains(translate(., 'LOGN', 'logn'), 'logon')]]",
 
-    // Continue with...
-    "//*[(@*|text())[contains(translate(., 'CONTIUEWH', 'contiuewh'), 'continue with')]]",
     "//*[(@*|text())[contains(translate(., 'CONTIUESG', 'contiuesg'), 'continue using')]]",
     "//*[(@*|text())[contains(translate(., 'CONTIUEVA', 'contiueva'), 'continue via')]]",
 
+
     // less popular strings
     "//*[(@*|text())[contains(translate(., 'CONETWIH', 'conetwih'), 'connect with')]]",
-    "//*[(@*|text())[contains(translate(., 'CONETUSIG', 'conetusig'), 'connect using')]]",
     "//*[(@*|text())[contains(translate(., 'CONETHRUG', 'conethrug'), 'connect through')]]",
 
     "//*[(@*|text())[contains(translate(., 'ACESWITH', 'aceswith'), 'access with')]]",
@@ -66,9 +56,23 @@ const SSO_LOGIN_XPATH = [
     "//*[(@*|text())[contains(translate(., 'LINKWTH', 'linkwth'), 'link with')]]",
 
 
+    // general strings but more specific selectors (less false positives and also improves performance)
+    "//span[text()[contains(translate(., 'SIGN', 'sign'), 'sign in')]]",
+    "//button[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
+    "//span[text()[contains(translate(., 'SIGN', 'sign'), 'signin')]]",
+
+    "//button[text()[contains(translate(., 'LOGIN', 'login'), 'login')]]",
+    "//span[text()[contains(translate(., 'LOGIN', 'login'), 'login')]]",
+    "//button[text()[contains(translate(., 'LOGIN', 'login'), 'log in')]]",
+    "//span[text()[contains(translate(., 'LOGIN', 'login'), 'log in')]]",
+    "//button[text()[contains(translate(., 'LOGN', 'logn'), 'log on')]]",
+    "//span[text()[contains(translate(., 'LOGN', 'logn'), 'log on')]]",
+    "//button[text()[contains(translate(., 'LOGN', 'logn'), 'logon')]]",
+    "//span[text()[contains(translate(., 'LOGN', 'logn'), 'logon')]]",
+
+
     // SET2
     //"//*[@data-provider]",
-    //"//*[text()[contains(., 'Or Use')]]", // theatlantic.com
     //"//*[@*[contains(., 'login-with-')]]"
     //"//*[text()[contains(translate(., 'SIGNU', 'signu'), 'sign in using')]]"
     //"//*[(@*|text())[contains(translate(., 'ONEFTHSPI', 'onefthspi'), 'one of these options')]]",
@@ -152,13 +156,21 @@ async function makeRequestIfLinkIsFound(el) {
         // already handled
         return Promise.resolve();
     }
-    console.log(el);
+    // console.log(el);
     processedElements.add(el);
+
+    // console.log(el);
+    // id = el.getAttribute("id");
+    // let iframe = document.createElement("iframe");
+    // iframe.src = window.location.href;
+    // document.body.appendChild(iframe);
+    // iframe.contentWindow.document.getElementById(id).click();
 
     // check if element contains sso link
     if (el.hasAttribute("href")) {
         const link = el.getAttribute("href");
         return sendServerRequest(link);
+        //openTab(link);
     }
     // check if it's a form element
     else if (el.tagName === "FORM" || (el.hasAttribute("type") && el.getAttribute("type") === "submit")) {
@@ -176,7 +188,11 @@ async function makeRequestIfLinkIsFound(el) {
     return Promise.resolve();
 }
 
- function getSSOSearchQuery() {
+// function openTab(href) {
+//     window.open(href, 'Popup Window', 'width=640,height=480,location=yes,scrollbars=yes').close();
+// }
+
+function getSSOSearchQuery() {
     let query = "";
     for (let xpath of SSO_LOGIN_XPATH) {
         if (query.length > 0) {
@@ -256,7 +272,27 @@ async function rpLinkSearch() {
     scan(1).then(() => console.log("Search complete"));
 }
 
-function ssoSearch() {
+// function windowHandler(el, win) {
+//     return new Promise(function(resolve, reject) {
+//         el.click();
+//         win.onload = function() {
+//             history.back();
+//         }
+//         resolve();
+//     });
+// }
+// 
+// async function makeRequestWindow(win, url, el) {
+//     console.log(el);
+//     win.location = url;
+//     win.addEventListener("load", function() {
+//         el.click();
+//         win.close();
+//     });
+//     await new Promise(resolve => setTimeout(resolve, 2000));
+// }
+
+async function ssoSearch() {
     processedElements = new Set();
 
     // find idp links
@@ -264,6 +300,71 @@ function ssoSearch() {
 
     // send requests to sso links
     rpLinkSearch();
+
+    // const rpLocation = window.location.href;
+    // const query = getSSOSearchQuery();
+    // const matches = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    // let win = window.open(rpLocation, "myWindow", "width=100,height=100");
+    // for (let i = 0; i < matches.snapshotLength; i++) {
+    //     setTimeout(function() {
+    //         const el = matches.snapshotItem(i);
+    //         el.click();
+    //         setTimeout(function() {
+    //             win.location.replace(rpLocation);
+    //         }, 2000);
+    //     }, 2000);
+
+    //    const el = matches.snapshotItem(i);
+    //    //el.click();
+    //    await makeRequestWindow(win, rpLocation, el);
+    // }
+
+    //const matches = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    
+    // let win = window.open(rpLocation, "myWindow", "width=200,height=200");
+    // setTimeout(function() {
+    //     scan(0).then(() => console.log("Search complete"));
+    // }, 2000);
+
+    // const scan = async i => {
+    //     console.log("iter: " + i);
+
+    //     const matches = document.evaluate(query, win.document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        
+    //     console.log(matches.snapshotLength);
+    //     if (i >= matches.snapshotLength) {
+    //         //win.close();
+    //         return;
+    //     }
+
+    //     const el = matches.snapshotItem(i);
+    //     console.log(el);
+    //     if (el.tagName == "SCRIPT" || el.tagName == "TITLE" || el.tagName == "IFRAME") {
+    //         scan(i+1).then(() => console.log("loop complete"));
+    //     }
+    //     el.click();
+    //     setTimeout(function() {
+    //         scan(i+1).then(() => console.log("loop complete"));
+    //     }, 2000);
+
+    // };
+
+    //win.close();
+    //win.opener.focus();
+
+    // win.addEventListener("load", function() {
+    //     const query = getSSOSearchQuery();
+    //     const matches = win.document.evaluate(query, win.document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    //     for (let i = 0; i < matches.snapshotLength; i++) {
+    //         const el = matches.snapshotItem(i);
+    //         el.click();
+    //         // win.onload = function() {
+    //         //     history.back();
+    //         // }
+    //         //win.history.back();
+    //     }
+    // });
+
 }
 
 async function submitServerForm(el) {
