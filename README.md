@@ -1,6 +1,6 @@
 # SSOPrivateEye
 
-This repository contains the SSO-Private-Eye browser extension code that scans sites with SSO login options and displays the requested permissions. This work is part of our publication in the ***ACM Transactions on Privacy and Security (TOPS)*** journal. 
+This repository contains the SSO-Private-Eye browser extension code that scans sites with SSO login options and displays the requested permissions. This work is part of our publication in the ***ACM Transactions on Privacy and Security (TOPS)*** journal. Please refer to the source code or the accompanying paper for details about the extension's design and implementation.
 
 ## :wrench: Getting started
 - Download the code or clone this [repository](https://github.com/choruslab/2022-SSOPrivateEye.git)
