@@ -92,7 +92,7 @@ function showContextMenuOption() {
     if (regex.test(url)) { // idp login page
         const divOption = newElement("option-banner");
         const divSpeye = newElement("speye-title", "[SPEYE]");
-        divSpeye.appendChild(newElement("view-permissions", "view & opt-out login permissions..."));
+        divSpeye.appendChild(newElement("view-permissions", " view & opt-out login permissions..."));
         divSpeye.onclick = function() {
             showIdPResult();
         }
@@ -159,18 +159,10 @@ async function makeRequestIfLinkIsFound(el) {
     // console.log(el);
     processedElements.add(el);
 
-    // console.log(el);
-    // id = el.getAttribute("id");
-    // let iframe = document.createElement("iframe");
-    // iframe.src = window.location.href;
-    // document.body.appendChild(iframe);
-    // iframe.contentWindow.document.getElementById(id).click();
-
     // check if element contains sso link
     if (el.hasAttribute("href")) {
         const link = el.getAttribute("href");
         return sendServerRequest(link);
-        //openTab(link);
     }
     // check if it's a form element
     else if (el.tagName === "FORM" || (el.hasAttribute("type") && el.getAttribute("type") === "submit")) {
@@ -187,10 +179,6 @@ async function makeRequestIfLinkIsFound(el) {
     }
     return Promise.resolve();
 }
-
-// function openTab(href) {
-//     window.open(href, 'Popup Window', 'width=640,height=480,location=yes,scrollbars=yes').close();
-// }
 
 function getSSOSearchQuery() {
     let query = "";
@@ -272,26 +260,6 @@ async function rpLinkSearch() {
     scan(1).then(() => console.log("Search complete"));
 }
 
-// function windowHandler(el, win) {
-//     return new Promise(function(resolve, reject) {
-//         el.click();
-//         win.onload = function() {
-//             history.back();
-//         }
-//         resolve();
-//     });
-// }
-// 
-// async function makeRequestWindow(win, url, el) {
-//     console.log(el);
-//     win.location = url;
-//     win.addEventListener("load", function() {
-//         el.click();
-//         win.close();
-//     });
-//     await new Promise(resolve => setTimeout(resolve, 2000));
-// }
-
 async function ssoSearch() {
     processedElements = new Set();
 
@@ -300,71 +268,6 @@ async function ssoSearch() {
 
     // send requests to sso links
     rpLinkSearch();
-
-    // const rpLocation = window.location.href;
-    // const query = getSSOSearchQuery();
-    // const matches = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    // let win = window.open(rpLocation, "myWindow", "width=100,height=100");
-    // for (let i = 0; i < matches.snapshotLength; i++) {
-    //     setTimeout(function() {
-    //         const el = matches.snapshotItem(i);
-    //         el.click();
-    //         setTimeout(function() {
-    //             win.location.replace(rpLocation);
-    //         }, 2000);
-    //     }, 2000);
-
-    //    const el = matches.snapshotItem(i);
-    //    //el.click();
-    //    await makeRequestWindow(win, rpLocation, el);
-    // }
-
-    //const matches = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    
-    // let win = window.open(rpLocation, "myWindow", "width=200,height=200");
-    // setTimeout(function() {
-    //     scan(0).then(() => console.log("Search complete"));
-    // }, 2000);
-
-    // const scan = async i => {
-    //     console.log("iter: " + i);
-
-    //     const matches = document.evaluate(query, win.document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-        
-    //     console.log(matches.snapshotLength);
-    //     if (i >= matches.snapshotLength) {
-    //         //win.close();
-    //         return;
-    //     }
-
-    //     const el = matches.snapshotItem(i);
-    //     console.log(el);
-    //     if (el.tagName == "SCRIPT" || el.tagName == "TITLE" || el.tagName == "IFRAME") {
-    //         scan(i+1).then(() => console.log("loop complete"));
-    //     }
-    //     el.click();
-    //     setTimeout(function() {
-    //         scan(i+1).then(() => console.log("loop complete"));
-    //     }, 2000);
-
-    // };
-
-    //win.close();
-    //win.opener.focus();
-
-    // win.addEventListener("load", function() {
-    //     const query = getSSOSearchQuery();
-    //     const matches = win.document.evaluate(query, win.document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    //     for (let i = 0; i < matches.snapshotLength; i++) {
-    //         const el = matches.snapshotItem(i);
-    //         el.click();
-    //         // win.onload = function() {
-    //         //     history.back();
-    //         // }
-    //         //win.history.back();
-    //     }
-    // });
-
 }
 
 async function submitServerForm(el) {

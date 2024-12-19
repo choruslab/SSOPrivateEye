@@ -207,7 +207,6 @@ function addContent(url, content) {
         basic_info.attributes.forEach(attr => {
             divBasic.appendChild(newElement("scope-desc", attr));
         });
-        //divBasic.appendChild(newElement("hr-after-basic-scopes"));
     }
     if (idp === "Google") {
         for (var key of Object.keys(IDP_SCOPE_DESC[idp]["required_scopes"])) {
@@ -228,7 +227,6 @@ function addContent(url, content) {
     if (idp === "Google") {
         return;
     }
-    //content.appendChild(newElement("hr-after-basic-scopes"));
 
     // non-basic info
     let counter = 1;
@@ -244,10 +242,6 @@ function addContent(url, content) {
             if (val.hasOwnProperty("desc")) { // optional description
                 divNonbasic.appendChild(newElement("scope-desc", val.desc));
             }
-            
-            // if (counter < scope_values.length) {
-            //     divNonbasic.appendChild(newElement("hr-after-basic-scopes"));
-            // }
             counter++;
         }
     }
