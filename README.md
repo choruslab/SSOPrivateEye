@@ -23,8 +23,8 @@ If you use this work, please cite it as:
       author    = {Srivathsan G. Morkonda and Sonia Chiasson and Paul C. van Oorschot},
       booktitle = {ACM Transactions on Privacy and Security (TOPS)},
       year      = {2025},
-      volume    = {},
-      number    = {},
-      doi       = {}
+      volume    = {28},
+      number    = {2},
+      url       = {https://doi.org/10.1145/3711898}
     }
 ```  
